@@ -477,7 +477,11 @@ local lsp_servers = {
         }
     },
     pyrefly = {
-        displayTypeErrors = 'force-on',
+        python = {
+            pyrefly = {
+                displayTypeErrors = 'force-on',
+            },
+        },
     },
     texlab = {},
     typos_lsp = {},
