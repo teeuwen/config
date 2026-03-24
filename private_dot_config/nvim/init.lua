@@ -457,6 +457,7 @@ local lsp_servers = {
     --dartls = {},
     docker_language_server = {},
     gopls = {},
+    hclfmt = {},
     helm_ls = {
         ['helm-ls'] = {
             yamlls = {
@@ -464,6 +465,7 @@ local lsp_servers = {
             }
         }
     },
+    jsonls = {},
     ltex = {
         language = 'auto',
         checkFrequency = 'manual'
@@ -479,15 +481,11 @@ local lsp_servers = {
             telemetry = { enable = false }
         }
     },
-    pyrefly = {
-        python = {
-            pyrefly = {
-                displayTypeErrors = 'force-on',
-            },
-        },
-    },
+    ruff = {},
     sqls = {},
+    terraformls = {},
     texlab = {},
+    ty = {},
     typos_lsp = {},
     vtsls = {},
     yamlls = {
@@ -554,13 +552,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
         if client.name == 'ltex' then
             require('ltex_extra').setup {}
-        end
-
-        if client.name == 'helm' then
-            require('telescope').load_extension('yaml_schema')
-        end
-        if client.name == 'yamlls' then
-            require('telescope').load_extension('yaml_schema')
         end
 
         -- Default mappings (created by NeoVim automatically)
