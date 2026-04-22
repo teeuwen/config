@@ -59,6 +59,8 @@ require('lazy').setup({
     -- Treesitter support
     {
         'nvim-treesitter/nvim-treesitter',
+        branch = 'main',
+        version = false,
         cmd = { 'TSInstall', 'TSBufEnable', 'TSBufDisable', 'TSModuleInfo' },
         event = 'BufRead',
         build = ':TSUpdate',
@@ -75,7 +77,7 @@ require('lazy').setup({
             }
         },
         config = function(_, opts)
-            require('nvim-treesitter.configs').setup(opts)
+            require('nvim-treesitter.config').setup(opts)
         end,
     },
 
@@ -117,44 +119,6 @@ require('lazy').setup({
                 ignore = { 'ltex' },
             },
         },
-    },
-
-    -- LSP call hierarchy
-    {
-        'ldelossa/litee.nvim',
-        events = 'VeryLazy',
-        opts = {
-            notify = {
-                enabled = false,
-            },
-            tree = {
-                icon_set = 'codicons',
-                indent_guides = false,
-            },
-            panel = {
-                orientation = 'bottom',
-                panel_size = 10,
-            },
-        },
-        config = function(_, opts)
-            require('litee.lib').setup(opts)
-        end,
-    },
-    {
-        'ldelossa/litee-calltree.nvim',
-        event = 'VeryLazy',
-        opts = {
-            resolve_symbols = true,
-            on_open = 'panel',
-            map_resize_keys = false,
-            keymaps = {
-                collapse = 'h',
-                expand = 'l',
-            },
-        },
-        config = function(_, opts)
-            require('litee.calltree').setup(opts)
-        end,
     },
 
     -- Autocompletion
@@ -220,17 +184,17 @@ require('lazy').setup({
             local actions = require('telescope.actions')
 
             local function telescope_open_single_or_multi(bufnr)
-                local actions_state = require("telescope.actions.state")
+                local actions_state = require('telescope.actions.state')
                 local single_selection = actions_state.get_selected_entry()
                 local multi_selection = actions_state.get_current_picker(bufnr):get_multi_selection()
                 if not vim.tbl_isempty(multi_selection) then
                     actions.close(bufnr)
                     for _, file in pairs(multi_selection) do
                     if file.path ~= nil then
-                        vim.cmd(string.format("edit %s", file.path))
+                        vim.cmd(string.format('edit %s', file.path))
                     end
                     end
-                    vim.cmd(string.format("edit %s", single_selection.path))
+                    vim.cmd(string.format('edit %s', single_selection.path))
                 else
                     actions.select_default(bufnr)
                 end
@@ -280,8 +244,9 @@ require('lazy').setup({
     -- LaTeX live PDF output
     {
         'lervag/vimtex',
-        config = function(_, _)
-            vim.g.vimtex_view_method = 'zathura'
+        lazy = false,
+        init = function()
+            vim.g.vimtex_view_method = 'skim'
         end
     },
 
@@ -405,7 +370,7 @@ so.listchars = {
 so.winborder = 'shadow'
 
 -- TODO: https://www.reddit.com/r/neovim/comments/1djjc6q/statuscolumn_a_beginers_guide/
---so.statuscolumn = "%=%l%s%C"
+--so.statuscolumn = '%=%l%s%C'
 --so.foldcolumn = '1'
 
 so.sessionoptions = {              -- session: configure what to save
@@ -457,11 +422,10 @@ local lsp_servers = {
     --dartls = {},
     docker_language_server = {},
     gopls = {},
-    hclfmt = {},
     helm_ls = {
         ['helm-ls'] = {
             yamlls = {
-                path = "yaml-language-server",
+                path = 'yaml-language-server',
             }
         }
     },
@@ -532,14 +496,12 @@ for server_name, config in pairs(lsp_servers) do
     vim.lsp.enable(server_name)
 end
 
-vim.lsp.handlers['textDocument/publishDiagnostics'] = vim.lsp.with(
-    vim.lsp.diagnostic.on_publish_diagnostics, {
-        virtual_text = false,
-        signs = true,
-        update_in_insert = false,
-        underline = true
-    }
-)
+vim.diagnostic.config({
+    signs = true,
+    underline = true,
+    update_in_insert = false,
+    virtual_text = false,
+})
 
 vim.api.nvim_create_autocmd('LspAttach', {
     callback = function(ev)
@@ -960,11 +922,6 @@ require('nvim-tree').setup {
     hijack_directories = {
         enable    = true,
         auto_open = true,
-    },
-
-    system_open = {
-        cmd  = nil,
-        args = {}
     },
 
     update_focused_file = {
