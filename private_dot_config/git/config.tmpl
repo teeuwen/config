@@ -1,0 +1,48 @@
+[alias]
+	lg = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %G? - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)' --all
+    gl = "!f() { git log --pretty=format:'- **%s**%n%b' master..HEAD | sed -e 's/^/  /' -e 's/^  - /- /' -e 's/$/<br\\/>/'; }; f"
+    kdiff = difftool --no-symlinks --dir-diff
+    kshow = "!f() { rev=${1:-HEAD}; git difftool --no-symlinks --dir-diff $rev~1 $rev; }; f $1"
+[color]
+	ui = auto
+[commit]
+	gpgsign = true
+[core]
+	excludesfile = ~/.config/git/ignore
+{{ if eq .chezmoi.os "darwin" -}}
+[credential]
+	helper = osxkeychain
+{{- end }}
+[diff]
+    tool = kitty
+[difftool]
+    prompt = false
+    trustExitCode = true
+[difftool "kitty"]
+    cmd = kitten diff $LOCAL $REMOTE
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	process = git-lfs filter-process
+	smudge = git-lfs smudge -- %f
+	required = true
+[gpg]
+    format = ssh
+[gpg "ssh"]
+{{ if eq .chezmoi.os "darwin" -}}
+    program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+{{- end }}
+	allowedSignersFile = /Users/bastiaan/.ssh/allowed_signers
+[init]
+	defaultBranch = master
+[pager]
+	branch = false
+[pull]
+	rebase = true
+[push]
+	followTags = true
+[user]
+	name = {{ .git.name }}
+	email = {{ .git.email }}
+	signingkey = {{ .git.signingkey }}
+
+# vim: set ft=gitconfig:
