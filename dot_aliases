@@ -1,0 +1,46 @@
+alias c='clear'
+alias q='exit'
+
+alias ls='ls --color=auto --group-directories-first --hyperlink=auto --literal'
+alias l='ls'
+alias la='ls -A'
+alias ll='ls -hl'
+alias lla='ls -Ahl'
+alias lssize='du -h | sort -n | grep "[[:digit:]]M"'
+
+alias calc='qalc'
+alias clb='pbcopy'
+alias cm='chezmoi'
+alias finddead='find . -xtype l'
+alias histstat="fc -l 1 | awk '{ CMD[\$2]++; count++; } END { for (a in CMD) print CMD[a] \" \" CMD[a] / count * 100 \"% \" a; }' | grep -v './' | column -c 3 -s \" \" -t | sort -nr | nl | head -n 20"
+alias k='kubectl'
+alias proper="print '\E[H\E[3J'"
+alias sudo='sudo '
+alias vi='nvim'
+alias vim='nvim'
+alias wget='wget --hsts-file="${XDG_CACHE_HOME}/wget-hsts"'
+
+ipinfo() {
+	curl "https://ipinfo.io/${1}"
+}
+alias pubip4='curl -4 api.ipify.org'
+alias pubip6='curl -6 api6.ipify.org'
+
+alias cC='cd ${XDG_DOCUMENTS_DIR}'
+alias cD='cd ${XDG_DOWNLOAD_DIR}'
+alias cM='cd ${XDG_MUSIC_DIR}'
+alias cP='cd ${XDG_PICTURES_DIR}'
+alias cV='cd ${XDG_VIDEOS_DIR}'
+
+alias eV='chezmoi edit --apply ${XDG_CONFIG_HOME}/nvim/init.lua'
+alias eZ='chezmoi edit --apply ${XDG_CONFIG_HOME}/zsh/.zshrc'
+
+r() {
+    cd "${HOME}/Developer/$1"
+}
+_r() {
+    ((CURRENT == 2)) && _files -/ -W ${HOME}/Developer
+}
+compdef _r r
+
+# vim: set ft=zsh:
