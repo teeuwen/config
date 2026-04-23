@@ -7,12 +7,153 @@ local wo = vim.wo
 
 so.compatible = false
 
-so.rtp:prepend(vim.env.XDG_CONFIG_HOME .. '/nvim')                  -- path: runtime directory
-so.backupdir = { vim.env.XDG_CACHE_HOME .. '/nvim/backups', '.' }   -- path: backup file directory (~)
-so.directory = { vim.env.XDG_CACHE_HOME .. '/nvim/swap', '.' }      -- path: swap file directory (.swp)
-so.viminfo:append('n' .. vim.env.XDG_CACHE_HOME .. '/nvim/history') -- path: history file
+so.rtp:prepend(vim.env.XDG_CONFIG_HOME .. '/nvim')              -- path: runtime directory
+so.backupdir = { vim.fn.stdpath('state') .. '/backups', '.' }   -- path: backup file directory (~)
+so.directory = { vim.fn.stdpath('state') .. '/swap', '.' }      -- path: swap file directory (.swp)
+so.viminfo:append('n' .. vim.fn.stdpath('state') .. '/history') -- path: history file
 
 vim.g.mapleader = 'g'
+
+-- }}}
+
+
+-- General ----------------------------------------------------------------- {{{
+
+--filetype indent on
+
+so.showtabline   = 0               -- tabs: hide tabline
+so.hidden        = true            -- tabs: allow switching buffers without saving
+
+so.encoding      = 'utf-8'         -- vim:  UTF-8 file encoding
+so.fileencoding  = 'utf-8'         -- file: UTF-8 file encoding
+so.autoread      = true            -- file: automatically read when file has changed
+so.backup        = true            -- file: generate a backup (~) file
+so.swapfile      = true            -- file: generate a swap (.swp) file
+so.updatetime    = 300             -- file: swap file update frequency
+so.undolevels    = 1000            -- file: set number of undos
+so.modeline      = true            -- file: enable modeline
+so.modelines     = 1               -- file: 1 modeline per file
+so.nrformats     : remove('octal') -- misc: don't assume numbers are octal
+--so.spell         = true            -- file: check spelling
+so.spelllang     = {               -- file: spellcheck languages
+    'en_us',
+    'nl'
+}
+
+--if vim.t_Co >= 256 then
+wo.number        = true            -- lines: show line numbers
+--wo.numberwidth   = 7               -- lines: line number column width
+wo.signcolumn    = 'yes:2'          -- lines: combine line number column and line column
+
+so.termguicolors = true
+--end
+
+so.mousescroll   = 'ver:1,hor:0'   -- lines: disable horizontal scrolling
+so.scrolloff     = 1               -- lines: set vertical scroll edge
+so.sidescrolloff = 5               -- lines: set horizontal scroll edge
+so.synmaxcol     = 200             -- lines: speed up syntax highlighting
+so.wrap          = false           -- lines: don't wrap
+so.whichwrap     : append('<,>,h,l,[,]') -- lines: wrap given movement keys
+
+--so.autoindent  = true            -- indent: automatic
+so.expandtab     = true            -- indent: expand tabs
+so.shiftround    = true            -- indent: round
+so.shiftwidth    = 4               -- indent: shift (<<, >>) width
+so.softtabstop   = 4               -- indent: tab width
+so.tabstop       = 4               -- indent: visual width
+
+so.laststatus    = 3               -- statusbar: always visible, global
+so.showmode      = false           -- statusbar: hide mode
+so.showcmd       = false           -- statusbar: hide key presses
+so.shortmess     : append({
+    a = true,                      -- statusbar: hide generic messages
+    c = true,                      -- statusbar: hide completion messages
+    o = true,                      -- statusbar: hide writing messages
+    s = true,                      -- statusbar: hide search messages
+    C = true,                      -- statusbar: hide ins-completion messages
+    I = true,                      -- statusbar: hide intro message
+    F = true,                      -- statusbar: hide file info
+})
+
+so.cmdheight     = 0               -- command: hide commandline by default
+so.history       = 1000            -- command: history
+--so.path+=**                      -- command: tab-completion recursive file search
+--so.wildmenu                      -- command: tab-completion menu
+so.wildmode      = 'full'          -- command: tab-completion style
+so.completeopt   = 'menuone'       -- command: show menu with only one item
+so.pumheight     = 16              -- command: show max 16 entries at once
+--so.suffixes      = .aux,.bak,.bbl,.blg,.brf,.cb,.class,.dvi,.idx,.ilg,.ind,.info,.inx,.jpg,.log,.o,.out,.png,.pyc,.swp,.toc,~
+--so.wildignore    = *.aux,*.bak,*.bbl,*.blg,*.brf,*.cb,*.class,*.dvi,*.idx,*.ilg,*.ind,*.info,*.inx,*.jpg,*.log,*.o,*.out,*.png,*.pyc,*.swp,*.toc
+
+so.hlsearch      = true            -- search: highlight matches
+so.incsearch     = true            -- search: highlight all
+so.ignorecase    = true            -- search: ignore case
+so.smartcase     = true            -- search: smart ignore case
+
+so.title         = true            -- terminal: enable title
+-- TODO
+--let &titlestring=$USER . '@' . substitute(hostname(), '\..*$', '', '') . ' - VIM'
+so.ttyfast       = true            -- terminal: fast connection
+so.ttimeoutlen   = 0               -- terminal: no delay after pressing ESC
+so.lazyredraw    = true            -- terminal: faster drawing
+so.backspace     = 'indent,eol,start' -- terminal: fix backspace
+so.clipboard     = 'unnamedplus'   -- terminal: copy to global clipboard
+so.fillchars     = {
+    fold      = ' ',
+    foldsep   = ' ',
+    foldopen  = '',
+    foldclose = '',
+    eob       = ' ',               -- terminal: empty lines at end of buffer
+    stl       = ' ',               -- terminal: active window indicator
+    stlnc     = ' ',               -- terminal: non-active window indicator
+    diff      = '╱',               -- diffview.nvim: deleted lines
+}
+so.listchars = {
+    eol   = '↲',                   -- terminal: end of line indicator
+    tab   = '»―',                  -- terminal: tab indicator
+    space = '⋅',                   -- terminal: space indicator
+    nbsp  = '␣',                   -- terminal: non-breaking space indicator
+}
+so.winborder = 'shadow'
+
+-- TODO: https://www.reddit.com/r/neovim/comments/1djjc6q/statuscolumn_a_beginers_guide/
+--so.statuscolumn = '%=%l%s%C'
+--so.foldcolumn = '1'
+
+so.sessionoptions = {              -- session: configure what to save
+    blank    = true,
+    buffers  = true,
+    curdir   = true,
+    folds    = true,
+    help     = true,
+    tabpages = true,
+    terminal = true
+}
+
+--opt.guicursor = n-v-c-sm:block,i-ci-ve:ver25-Cursor,r-cr-o:hor20
+--let &t_SI='\e[6 q'
+--let &t_SR='\e[4 q'
+--let &t_EI='\e[2 q'
+
+
+-- Enable mouse support in Normal mode
+vim.api.nvim_create_autocmd({ 'BufEnter' }, {
+  pattern = { '*' },
+  command = 'set mouse=n'
+})
+
+-- Remove How to disable mouse from right click menu
+vim.cmd [[aunmenu PopUp.How-to\ disable\ mouse]]
+vim.cmd [[aunmenu PopUp.-1-]]
+
+-- Highlight characters over 120 columns
+--au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>120v.\+', -1)
+
+-- Restore cursor to previous position when file is reloaded
+--augroup resCur
+--    autocmd!
+--    autocmd BufReadPost * call setpos('.', getpos(''\"'))
+--augroup END
 
 -- }}}
 
@@ -45,16 +186,6 @@ require('lazy').setup({
         lazy = false,
         priority = 1000,
     },
-    --{
-    --    'rose-pine/neovim',
-    --    name = 'rose-pine',
-    --    lazy = false,
-    --    priority = 1000,
-    --    opts = {
-    --        disable_background = true,
-    --        dim_nc_background = false,
-    --    }
-    --},
 
     -- Treesitter support
     {
@@ -255,158 +386,7 @@ require('lazy').setup({
         'towolf/vim-helm',
         ft = 'helm'
     },
-    --{ 'qpkorr/vim-bufkill' },                             -- Don't close window when closing buffer
-    --{ 'neoclide/coc.nvim', { branch = 'release' }}        -- Auto completion engine
-    --{ 'ap/vim-buftabline' },                              -- Buffer list tabline
-    --{ 'ludovicchabant/vim-gutentags' },                   -- Tag file management
-    --{ 'kristijanhusak/vim-hybrid-material' },             -- Material color scheme
-    --{ 'morhetz/gruvbox' },                                -- Gruvbox color scheme
-    --{ 'cocopon/iceberg.vim' },                            -- Iceberg color scheme
-    --{ 'xuhdev/vim-latex-live-preview' },                  -- LaTeX live PDF output
-    --{ 'christoomey/vim-tmux-navigator' },                 -- tmux Window keymappings
-    --{ 'wannesm/wmgraphviz.vim' },                         -- Graphviz dot
 })
-
--- }}}
-
-
--- General ----------------------------------------------------------------- {{{
-
---filetype indent on
-
-so.showtabline   = 0               -- tabs: hide tabline
-so.hidden        = true            -- tabs: allow switching buffers without saving
-
-so.encoding      = 'utf-8'         -- vim:  UTF-8 file encoding
-so.fileencoding  = 'utf-8'         -- file: UTF-8 file encoding
-so.autoread      = true            -- file: automatically read when file has changed
-so.backup        = true            -- file: generate a backup (~) file
-so.swapfile      = true            -- file: generate a swap (.swp) file
-so.updatetime    = 300             -- file: swap file update frequency
-so.undolevels    = 1000            -- file: set number of undos
-so.modeline      = true            -- file: enable modeline
-so.modelines     = 1               -- file: 1 modeline per file
-so.nrformats     : remove('octal') -- misc: don't assume numbers are octal
---so.spell         = true            -- file: check spelling
-so.spelllang     = {               -- file: spellcheck languages
-    'en_us',
-    'nl'
-}
-
---if vim.t_Co >= 256 then
-wo.number        = true            -- lines: show line numbers
---wo.numberwidth   = 7               -- lines: line number column width
-wo.signcolumn    = 'yes:2'          -- lines: combine line number column and line column
-
-so.termguicolors = true
---end
-
-so.mousescroll   = 'ver:1,hor:0'   -- lines: disable horizontal scrolling
-so.scrolloff     = 1               -- lines: set vertical scroll edge
-so.sidescrolloff = 5               -- lines: set horizontal scroll edge
-so.synmaxcol     = 200             -- lines: speed up syntax highlighting
-so.wrap          = false           -- lines: don't wrap
-so.whichwrap     : append('<,>,h,l,[,]') -- lines: wrap given movement keys
-
---so.autoindent  = true            -- indent: automatic
-so.expandtab     = true            -- indent: expand tabs
-so.shiftround    = true            -- indent: round
-so.shiftwidth    = 4               -- indent: shift (<<, >>) width
-so.softtabstop   = 4               -- indent: tab width
-so.tabstop       = 4               -- indent: visual width
-
-so.laststatus    = 3               -- statusbar: always visible, global
-so.showmode      = false           -- statusbar: hide mode
-so.showcmd       = false           -- statusbar: hide key presses
-so.shortmess     : append({
-    a = true,                      -- statusbar: hide generic messages
-    c = true,                      -- statusbar: hide completion messages
-    o = true,                      -- statusbar: hide writing messages
-    s = true,                      -- statusbar: hide search messages
-    C = true,                      -- statusbar: hide ins-completion messages
-    I = true,                      -- statusbar: hide intro message
-    F = true,                      -- statusbar: hide file info
-})
-
-so.cmdheight     = 0               -- command: hide commandline by default
-so.history       = 1000            -- command: history
---so.path+=**                      -- command: tab-completion recursive file search
---so.wildmenu                      -- command: tab-completion menu
-so.wildmode      = 'full'          -- command: tab-completion style
-so.completeopt   = 'menuone'       -- command: show menu with only one item
-so.pumheight     = 16              -- command: show max 16 entries at once
---so.suffixes      = .aux,.bak,.bbl,.blg,.brf,.cb,.class,.dvi,.idx,.ilg,.ind,.info,.inx,.jpg,.log,.o,.out,.png,.pyc,.swp,.toc,~
---so.wildignore    = *.aux,*.bak,*.bbl,*.blg,*.brf,*.cb,*.class,*.dvi,*.idx,*.ilg,*.ind,*.info,*.inx,*.jpg,*.log,*.o,*.out,*.png,*.pyc,*.swp,*.toc
-
-so.hlsearch      = true            -- search: highlight matches
-so.incsearch     = true            -- search: highlight all
-so.ignorecase    = true            -- search: ignore case
-so.smartcase     = true            -- search: smart ignore case
-
-so.title         = true            -- terminal: enable title
--- TODO
---let &titlestring=$USER . '@' . substitute(hostname(), '\..*$', '', '') . ' - VIM'
-so.ttyfast       = true            -- terminal: fast connection
-so.ttimeoutlen   = 0               -- terminal: no delay after pressing ESC
-so.lazyredraw    = true            -- terminal: faster drawing
-so.backspace     = 'indent,eol,start' -- terminal: fix backspace
-so.clipboard     = 'unnamedplus'   -- terminal: copy to global clipboard
-so.fillchars     = {
-    fold      = ' ',
-    foldsep   = ' ',
-    foldopen  = '',
-    foldclose = '',
-    eob       = ' ',               -- terminal: empty lines at end of buffer
-    stl       = ' ',               -- terminal: active window indicator
-    stlnc     = ' ',               -- terminal: non-active window indicator
-    diff      = '╱',               -- diffview.nvim: deleted lines
-}
-so.listchars = {
-    eol   = '↲',                   -- terminal: end of line indicator
-    tab   = '»―',                  -- terminal: tab indicator
-    space = '⋅',                   -- terminal: space indicator
-    nbsp  = '␣',                   -- terminal: non-breaking space indicator
-}
-so.winborder = 'shadow'
-
--- TODO: https://www.reddit.com/r/neovim/comments/1djjc6q/statuscolumn_a_beginers_guide/
---so.statuscolumn = '%=%l%s%C'
---so.foldcolumn = '1'
-
-so.sessionoptions = {              -- session: configure what to save
-    blank    = true,
-    buffers  = true,
-    curdir   = true,
-    folds    = true,
-    help     = true,
-    tabpages = true,
-    terminal = true
-}
-
---opt.guicursor = n-v-c-sm:block,i-ci-ve:ver25-Cursor,r-cr-o:hor20
---let &t_SI='\e[6 q'
---let &t_SR='\e[4 q'
---let &t_EI='\e[2 q'
-
-
--- Enable mouse support in Normal mode
-vim.api.nvim_create_autocmd({ 'BufEnter' }, {
-  pattern = { '*' },
-  command = 'set mouse=n'
-})
-
--- Remove How to disable mouse from right click menu
-vim.cmd [[aunmenu PopUp.How-to\ disable\ mouse]]
-vim.cmd [[aunmenu PopUp.-1-]]
-
--- Highlight characters over 120 columns
---au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>120v.\+', -1)
-
--- Restore cursor to previous position when file is reloaded
---augroup resCur
---    autocmd!
---    autocmd BufReadPost * call setpos('.', getpos(''\"'))
---augroup END
 
 -- }}}
 
@@ -766,36 +746,13 @@ local colors_generic = {
 }
 
 function UpdateColorscheme()
-    --if mode == 'dark' then
-    --    so.background = 'dark'
-    --elseif mode == 'light' then
-    --    so.background = 'light'
-    --else
-    --    -- FIXME get from file in .config
-    --    local handle = io.popen('defaults read -g AppleInterfaceStyle 2>&1')
-    --    if handle == nil then
-    --        return
-    --    end
+    local colorscheme = vim.fn.readfile(vim.fn.stdpath("state") .. "/theme")[1]
+    local background = vim.fn.readfile(vim.fn.stdpath("state") .. "/theme")[2]
 
-    --    local result = handle:read('*a')
-    --    handle:close()
+    vim.cmd('colorscheme ' .. colorscheme)
+    so.background = background
 
-    --    if result:find'^Dark' ~= nil then
-    --        mode = 'dark'
-    --        so.background = 'dark'
-    --    else
-    --        mode = 'light'
-    --        so.background = 'light'
-    --    end
-    --end
-
-    local theme = vim.fn.readfile(vim.env.XDG_CONFIG_HOME .. '/current-theme')[1]
-    local mode = vim.fn.readfile(vim.env.XDG_CONFIG_HOME .. '/current-theme')[2]
-
-    vim.cmd('colorscheme ' .. theme)
-    so.background = mode
-
-    if mode == 'dark' then
+    if background == 'dark' then
         for group,colors in pairs(colors_dark) do
             vim.api.nvim_set_hl(0, group, colors)
         end
