@@ -782,7 +782,7 @@ window_resize_step_lines 2
 #: start_resizing_window. The cells value is used for horizontal
 #: resizing, and the lines value is used for vertical resizing.
 
-window_border_width 0pt
+window_border_width 1px
 
 #: The width of window borders. Can be either in pixels (px) or pts
 #: (pt). Values in pts will be rounded to the nearest number of pixels
@@ -923,6 +923,17 @@ resize_in_steps yes
 #: windows where some command is currently running. Note that if you
 #: want confirmation when closing individual windows, you can map the
 #: close_window_with_confirmation action.
+
+window_drag_tolerance 8
+
+#: Control dragging window borders to resize kitty windows. This is
+#: the tolerance in pts for the region around window borders where
+#: pressing the left mouse button will start the dragging of window
+#: borders. Use a large negative value such as -200 to disable
+#: dragging of borders. Note that because kitty uses layouts, dragging
+#: borders does not actually resize the window itself, but instead,
+#: the layout row/column/slot, which can result in multiple windows
+#: getting resized.
 
 #: ]]]
 
