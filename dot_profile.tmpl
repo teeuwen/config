@@ -8,10 +8,6 @@ if [ -e "${XDG_CONFIG_HOME}/user-dirs.dirs" ]; then
 	export $(cut -d= -f1 "${XDG_CONFIG_HOME}/user-dirs.dirs")
 fi
 
-if [ -e "${XDG_CONFIG_HOME}/dircolors" ]; then
-	eval "$(dircolors ${XDG_CONFIG_HOME}/dircolors)"
-fi
-
 export MYSQL_HISTFILE="${XDG_CACHE_HOME}/mysql_history"
 export PYTHON_HISTORY="${XDG_CACHE_HOME}/python_history"
 
@@ -34,13 +30,16 @@ export PATH=\
 "/opt/homebrew/opt/grep/libexec/gnubin:"\
 "/opt/homebrew/bin:"\
 "/opt/homebrew/sbin:"\
-{{- end }}
+{{ else -}}
+"/home/linuxbrew/.linuxbrew/bin:"\
+"/home/linuxbrew/.linuxbrew/sbin:"\
+{{ end -}}
 "${CARGO_HOME}/bin:"\
 "${KREW_ROOT}/bin:"\
 "${HOME}/.local/bin:"\
 {{ if eq .chezmoi.os "darwin" -}}
 "${HOME}/.orbstack/bin:"\
-{{- end }}
+{{ end -}}
 "${PATH}"
 
 export EDITOR='/opt/homebrew/bin/nvim'
@@ -49,3 +48,7 @@ export LESSHISTFILE='/dev/null'
 
 export HOMEBREW_NO_ANALYTICS=1
 export HOMEBREW_NO_ENV_HINTS=1
+
+if [ -e "${XDG_CONFIG_HOME}/dircolors" ]; then
+	eval "$(dircolors ${XDG_CONFIG_HOME}/dircolors)"
+fi
