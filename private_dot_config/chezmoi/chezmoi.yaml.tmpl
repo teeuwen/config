@@ -1,0 +1,5 @@
+data:
+  git:
+    name: {{ promptStringOnce . "name" "Full name" }}
+    email: {{ promptStringOnce . "email" "Email address" }}
+    signingkey: {{ promptStringOnce . "signingKey" "Git signing key" }}
