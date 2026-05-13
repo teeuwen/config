@@ -1,0 +1,139 @@
+# .profile is already expected to have been evaluated
+
+# Quit if not running interactive
+case $- in
+	*i*) ;;
+	*) return ;;
+esac
+
+# Disable Ctrl+S and Ctrl+Q
+stty -ixon -ixoff
+
+# General
+autoload -Uz promptinit colors vcs_info compinit complete_aliases history-search-end
+
+bindkey -v
+
+setopt NO_HUP
+setopt NO_BEEP
+
+setopt CLOBBER
+setopt APPEND_CREATE
+
+setopt EXTENDED_GLOB
+
+# history
+setopt SHARE_HISTORY
+setopt EXTENDED_HISTORY
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_SAVE_NO_DUPS
+export HISTFILE="${XDG_CACHE_HOME}/zsh_history"
+export HISTSIZE=100000
+export SAVEHIST=100000
+
+export SHELL_SESSION_HISTORY=0
+
+{{ if eq .chezmoi.os "darwin" -}}
+fpath=(
+	/opt/homebrew/share/zsh/site-functions
+    /Applications/OrbStack.app/Contents/MacOS/../Resources/completions/zsh
+	"${fpath[@]}"
+)
+{{- end }}
+
+# macOS compatibility
+bindkey '\e[H' beginning-of-line
+bindkey '\e[F' end-of-line
+
+# GNU Screen compatibility
+bindkey '\e[1~' beginning-of-line
+bindkey '\e[4~' end-of-line
+bindkey '\e[3~' delete-char
+
+# Command history search
+zle -N history-beginning-search-backward-end history-search-end
+zle -N history-beginning-search-forward-end history-search-end
+bindkey '\e[A' history-beginning-search-backward-end
+bindkey '\e[B' history-beginning-search-forward-end
+bindkey '^R' history-incremental-pattern-search-backward
+bindkey '^F' history-incremental-pattern-search-forward
+
+# Window title
+print -Pn '\e]2;\u200D\a'
+export PROMPT_COMMAND="echo -ne '\e]2;\u200D\a';${PROMPT_COMMAND}"
+
+# Prompt styling
+promptinit
+colors
+setopt INTERACTIVE_COMMENTS
+setopt PROMPT_SUBST
+
+case ${TERM} in
+screen-256color|xterm-256color)
+    precmd()
+    {
+        vcs_info
+        eval "${PROMPT_COMMAND}"
+    }
+
+    PROMPT=' %F{blue}%~%f ${vcs_info_msg_0_}%(?.%F{cyan}.%F{red})%(!.#.λ)%f '
+    ;;
+*)
+    precmd()
+    {
+        vcs_info
+        eval "${PROMPT_COMMAND}"
+    }
+
+    PROMPT=' %F{blue}%~%f ${vcs_info_msg_0_}%(?.%F{green}.%F{red})%(!.#.$)%f '
+    ;;
+esac
+
+if [ ${UID} -ne {{ .chezmoi.uid }} ]; then
+	PROMPT='%F{green}%n%f'${PROMPT}
+
+    if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
+        PROMPT='%F{green}%n@%f'${PROMPT}
+    else
+        PROMPT='%F{green}%n%f'${PROMPT}
+    fi
+fi
+
+if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
+	PROMPT='%F{white}%M%f'${PROMPT}
+fi
+
+# Git branch in prompt
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' stagedstr "%{$fg[red]%}"
+zstyle ':vcs_info:*' unstagedstr "%{$fg[red]%}"
+zstyle ':vcs_info:git*' formats "%{$fg[green]%}%c%u%b%{$reset_color%} "
+
+# Custom "command not found" message
+command_not_found_handler()
+{
+	echo "zsh: that shit don't exist: $@"
+	return 1
+}
+
+# Interactive autocompletion
+compinit
+setopt AUTO_CD
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME}/zsh/compcache"
+zstyle ':completion:*' list-prompt %S%p%s
+zstyle ':completion:*' matcher-list m:{a-zA-Z}={A-Za-z}
+zstyle ':completion:*' menu select
+zstyle ':completion:*' rehash true
+zstyle ':completion:*' use-cache 1
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+
+# Aliases
+if [ -e "${HOME}/.aliases" ]; then
+	source "${HOME}/.aliases"
+fi
+
+# vim: set ft=zsh:
