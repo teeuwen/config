@@ -56,8 +56,13 @@ bindkey '\e[3~' delete-char
 # Command history search
 zle -N history-beginning-search-backward-end history-search-end
 zle -N history-beginning-search-forward-end history-search-end
+{{ if eq .chezmoi.os "darwin" -}}
 bindkey '\e[A' history-beginning-search-backward-end
 bindkey '\e[B' history-beginning-search-forward-end
+{{- else -}}
+bindkey '\eOA' history-beginning-search-backward-end
+bindkey '\eOB' history-beginning-search-forward-end
+{{- end }}
 bindkey '^R' history-incremental-pattern-search-backward
 bindkey '^F' history-incremental-pattern-search-forward
 
