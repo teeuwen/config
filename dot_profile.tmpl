@@ -5,7 +5,13 @@ export XDG_DATA_DIRS="{{ if eq .chezmoi.os "darwin" }}/opt/homebrew/share{{ end 
 
 if [ -e "${XDG_CONFIG_HOME}/user-dirs.dirs" ]; then
 	source "${XDG_CONFIG_HOME}/user-dirs.dirs"
-	export $(cut -d= -f1 "${XDG_CONFIG_HOME}/user-dirs.dirs")
+
+    while IFS='=' read -r name _; do
+        case "${name}" in
+            ''|\#*) continue ;;
+        esac
+        export "${name}"
+    done < "${XDG_CONFIG_HOME}/user-dirs.dirs"
 fi
 
 export MYSQL_HISTFILE="${XDG_CACHE_HOME}/mysql_history"
