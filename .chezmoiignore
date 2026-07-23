@@ -1,5 +1,6 @@
-{{ if eq .chezmoi.os "darwin" -}}
-.config/systemd/
-{{- else if eq .chezmoi.os "linux" -}}
+{{ if ne .chezmoi.os "darwin" -}}
 Library/
+{{- else if ne .chezmoi.os "linux" -}}
+.config/skhd/
+.config/systemd/
 {{- end }}
