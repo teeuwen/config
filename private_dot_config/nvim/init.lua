@@ -399,7 +399,6 @@ local lsp_servers = {
     clangd = {},
     cmake = {},
     cssls = {},
-    --dartls = {},
     docker_language_server = {},
     gopls = {},
     helm_ls = {
@@ -426,6 +425,7 @@ local lsp_servers = {
         }
     },
     ruff = {},
+    rust_analyzer = {},
     sqls = {},
     terraformls = {},
     texlab = {},
