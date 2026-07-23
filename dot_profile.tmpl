@@ -48,7 +48,7 @@ export PATH=\
 {{ end -}}
 "${PATH}"
 
-export EDITOR='/opt/homebrew/bin/nvim'
+export EDITOR='{{ if eq .chezmoi.os "darwin" }}/opt/homebrew/bin/nvim{{ else }}/home/linuxbrew/.linuxbrew/bin/nvim{{ end }}'
 export LC_ALL='en_US.UTF-8'
 export LESSHISTFILE='/dev/null'
 
