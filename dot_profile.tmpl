@@ -1,7 +1,7 @@
 export XDG_CACHE_HOME="${HOME}/.cache"
 export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_DATA_HOME="${HOME}/.local/share"
-export XDG_DATA_DIRS="{{ if eq .chezmoi.os "darwin" }}/opt/homebrew/share{{ end }}:/usr/local/share:/usr/share"
+export XDG_DATA_DIRS="{{ if eq .chezmoi.os "darwin" }}/opt/homebrew/share:{{ end }}/usr/local/share:/usr/share"
 
 if [ -e "${XDG_CONFIG_HOME}/user-dirs.dirs" ]; then
 	source "${XDG_CONFIG_HOME}/user-dirs.dirs"
