@@ -32,20 +32,19 @@ packages:
       - autoconf
       - automake
       - bison
-      - cmake
+      - cmake: { debian: snap/cmake --classic }
       - cpio
       - docker-buildx: { debian: docker/docker-buildx-plugin }
       - docker-compose: { debian: docker/docker-compose-plugin }
       - docker: { debian: docker/docker-ce }
       - gcc
       - git
-      - golang
+      - go: { debian: snap/go --classic }
       - kubernetes-cli: { debian: snap/kubectl --classic }
       - kustomize
       - make
-      - meson
       - ninja: { debian: ninja-build }
-      - node: { debian: nodejs }
+      - node: { debian: snap/node --classic }
       - rustup
       - shellcheck:
     darwin:
