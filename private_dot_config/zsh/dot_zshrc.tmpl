@@ -2,8 +2,8 @@
 
 # Quit if not running interactive
 case $- in
-	*i*) ;;
-	*) return ;;
+    *i*) ;;
+    *) return ;;
 esac
 
 # Disable Ctrl+S and Ctrl+Q
@@ -38,9 +38,9 @@ export SHELL_SESSION_HISTORY=0
 
 {{ if eq .chezmoi.os "darwin" -}}
 fpath=(
-	/opt/homebrew/share/zsh/site-functions
+    /opt/homebrew/share/zsh/site-functions
     /Applications/OrbStack.app/Contents/MacOS/../Resources/completions/zsh
-	"${fpath[@]}"
+    "${fpath[@]}"
 )
 {{- end }}
 
@@ -98,7 +98,7 @@ screen-256color|xterm-256color)
 esac
 
 if [ ${UID} -ne {{ .chezmoi.uid }} ]; then
-	PROMPT='%F{green}%n%f'${PROMPT}
+    PROMPT='%F{green}%n%f'${PROMPT}
 
     if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
         PROMPT='%F{green}%n@%f'${PROMPT}
@@ -108,7 +108,7 @@ if [ ${UID} -ne {{ .chezmoi.uid }} ]; then
 fi
 
 if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
-	PROMPT='%F{white}%M%f'${PROMPT}
+    PROMPT='%F{white}%M%f'${PROMPT}
 fi
 
 # Git branch in prompt
@@ -121,8 +121,8 @@ zstyle ':vcs_info:git*' formats "%{$fg[green]%}%c%u%b%{$reset_color%} "
 # Custom "command not found" message
 command_not_found_handler()
 {
-	echo "zsh: that shit don't exist: $@"
-	return 1
+    echo "zsh: that shit don't exist: $@"
+    return 1
 }
 
 # Interactive autocompletion
@@ -138,7 +138,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 
 # Aliases
 if [ -e "${HOME}/.aliases" ]; then
-	source "${HOME}/.aliases"
+    source "${HOME}/.aliases"
 fi
 
 # vim: set ft=zsh:
