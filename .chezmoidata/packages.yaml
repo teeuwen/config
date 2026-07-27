@@ -1,0 +1,68 @@
+---
+
+packages:
+  base:
+    common:
+      - btop
+      - ca-certificates
+      - coreutils
+      - curl
+      - diffutils
+      - gawk
+      - grep
+      - htop
+      - jq
+      - neovim: { debian: snap/nvim --classic }
+      - rename
+      - ripgrep
+      - rsync
+      - tar: { darwin: gnu-tar }
+      - tree
+      - usb.ids
+      - uv: { debian: snap/astral-uv --classic }
+      - wget
+      - yq
+    darwin:
+      - watch
+    debian:
+      - procps
+
+  dev:
+    common:
+      - autoconf
+      - automake
+      - bison
+      - cmake
+      - cpio
+      - docker-buildx: { debian: docker/docker-buildx-plugin }
+      - docker-compose: { debian: docker/docker-compose-plugin }
+      - docker: { debian: docker/docker-ce }
+      - gcc
+      - git
+      - golang
+      - kubernetes-cli: { debian: snap/kubectl --classic }
+      - kustomize
+      - make
+      - meson
+      - ninja: { debian: ninja-build }
+      - node: { debian: nodejs }
+      - rustup
+      - shellcheck:
+    darwin:
+      - cask/orbstack
+      - uv
+    debian:
+      - docker-ce-cli
+
+  gui:
+    common:
+      - exiftool
+      - ffmpeg
+      - imagemagick
+      - kitty: { darwin: cask/kitty }
+      - mpv
+      - yt-dlp: { darwin: yt-dlp --head }
+    darwin:
+      - asmvik/formulae/skhd
+      - cask/1password
+      - cask/rectangle

@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+
+# Package-data checksum:
+# {{ .packages | toJson | sha256sum }}
+
+set -euo pipefail
+
+readonly PLATFORM="{{- if eq .chezmoi.os "darwin" -}}darwin{{- else if eq .chezmoi.os "linux" -}}{{ lower .chezmoi.osRelease.id }}{{- else -}}{{ .chezmoi.os }}{{- end -}}"
+
+declare -a brew_formulae=()
+declare -a brew_casks=()
+declare -a apt_packages=()
+declare -a snap_packages=()
+declare -a docker_packages=()
+
+log() {
+    printf '==> \033[1m%s\033[0m\n' "$*"
+}
+
+append() {
+    local array_name="$1"
+    local value="$2"
+    local existing
+
+    declare -n array_ref="$array_name"
+
+    for existing in "${array_ref[@]}"; do
+        [[ "$existing" == "$value" ]] && return 0
+    done
+
+    array_ref+=("$value")
+}
+
+add_package() {
+    local specification="$1"
+
+    case "$specification" in
+        cask/*)
+            append brew_casks "${specification#cask/}"
+            ;;
+
+        snap/*)
+            append snap_packages "${specification#snap/}"
+            ;;
+
+        docker/*)
+            append docker_packages "${specification#docker/}"
+            ;;
+
+        *)
+            case "$PLATFORM" in
+                darwin)
+                    append brew_formulae "$specification"
+                    ;;
+
+                debian|ubuntu)
+                    append apt_packages "$specification"
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+install_brew_packages() {
+    if ! command -v snap >/dev/null 2>&1; then
+        log "Installing Homebrew"
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+
+    local specification
+    local -a arguments
+
+    if ((${#brew_formulae[@]} > 0)); then
+        for specification in "${brew_formulae[@]}"; do
+            read -r -a arguments <<<"$specification"
+
+            ((${#arguments[@]} > 0)) ||
+                continue
+
+            log "Installing Homebrew formula: $specification"
+            brew install "${arguments[@]}"
+        done
+    fi
+
+    if ((${#brew_casks[@]} > 0)); then
+        for specification in "${brew_casks[@]}"; do
+            read -r -a arguments <<<"$specification"
+
+            ((${#arguments[@]} > 0)) ||
+                continue
+
+            log "Installing Homebrew cask: $specification"
+            brew install --cask "${arguments[@]}"
+        done
+    fi
+}
+
+configure_docker_repository() {
+    log "Configuring Docker's APT repository for $PLATFORM"
+
+    sudo install -m 0755 -d /etc/apt/keyrings
+
+    sudo curl \
+        --fail \
+        --silent \
+        --show-error \
+        --location \
+        "https://download.docker.com/linux/${PLATFORM}/gpg" \
+        --output /etc/apt/keyrings/docker.asc
+
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    printf '%s\n' \
+        "Types: deb" \
+        "URIs: https://download.docker.com/linux/${PLATFORM}" \
+        "Suites: $(lsb_release -cs)" \
+        "Components: stable" \
+        "Architectures: $(dpkg --print-architecture)" \
+        "Signed-By: /etc/apt/keyrings/docker.asc" |
+        sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null
+}
+
+install_apt_packages() {
+    configure_docker_repository
+
+    log "Updating APT metadata"
+    sudo apt-get update
+
+    if ((${#apt_packages[@]} > 0)); then
+        log "Installing APT packages"
+        sudo apt-get install --yes "${apt_packages[@]}"
+    fi
+
+    if ((${#docker_packages[@]} > 0)); then
+        log "Installing packages from Docker's APT repository"
+        sudo apt-get install --yes "${docker_packages[@]}"
+    fi
+}
+
+install_snap_packages() {
+    ((${#snap_packages[@]} > 0)) || return 0
+
+    if ! command -v snap >/dev/null 2>&1; then
+        log "Installing snapd"
+        sudo apt-get install --yes snapd
+    fi
+
+    local specification
+    local -a arguments
+
+    for specification in "${snap_packages[@]}"; do
+        read -r -a arguments <<<"$specification"
+
+        ((${#arguments[@]} > 0)) ||
+            continue
+
+        if snap list "${arguments[0]}" >/dev/null 2>&1; then
+            log "Snap ${arguments[0]} is already installed"
+            continue
+        fi
+
+        log "Installing Snap package: $specification"
+        sudo snap install "${arguments[@]}"
+    done
+}
+
+main() {
+    case "$PLATFORM" in
+        darwin)
+            install_brew_packages
+            ;;
+
+        debian|ubuntu)
+            install_apt_packages
+            install_snap_packages
+            ;;
+    esac
+}
+
+{{ define "emitPackage" }}
+{{-   $entry := .entry }}
+{{-   $platform := .platform }}
+{{-   if kindIs "string" $entry }}
+{{      printf "add_package %s" ($entry | quote) }}
+{{-   else }}
+{{-     range $defaultName, $overrides := $entry }}
+{{-       $resolvedName := $defaultName }}
+{{-       if and (kindIs "map" $overrides) (hasKey $overrides $platform) }}
+{{-         $resolvedName = get $overrides $platform }}
+{{-       end }}
+{{      printf "add_package %s" ($resolvedName | quote) }}
+{{-     end }}
+{{-   end }}
+{{- end }}
+
+{{- $platform := "" }}
+{{- if eq .chezmoi.os "darwin" }}
+{{-   $platform = "darwin" }}
+{{- else if eq .chezmoi.os "linux" }}
+{{-   $platform = lower .chezmoi.osRelease.idLike }}
+{{- else }}
+{{-   $platform = .chezmoi.os }}
+{{- end }}
+
+{{- range $groupName, $group := .packages }}
+{{    printf "# %s" $groupName }}
+{{-   if hasKey $group "common" }}
+{{-     range $entry := get $group "common" -}}
+{{        template "emitPackage" (dict "entry" $entry "platform" $platform) }}
+{{-     end }}
+{{-   end }}
+{{-   if hasKey $group $platform }}
+{{-     range $entry := get $group $platform -}}
+{{        template "emitPackage" (dict "entry" $entry "platform" $platform) }}
+{{-     end }}
+{{    end }}
+{{- end }}
+
+main "$@"
+
+# vim: set ft=bash:
