@@ -59,10 +59,17 @@ export PATH=\
 {{ end -}}
 "${PATH}"
 
-{{ if eq .chezmoi.os "darwin" -}}
-export EDITOR='/opt/homebrew/bin/nvim'
-{{- else if eq .chezmoi.os "linux" -}}
-export EDITOR='/usr/bin/nvim'
+{{ $editor := lookPath "nvim" -}}
+{{- if not $editor -}}
+{{-   $editor = lookPath "vim" -}}
+{{- end -}}
+{{- if not $editor -}}
+{{-   $editor = lookPath "vi" -}}
+{{- end -}}
+
+{{- if $editor -}}
+export EDITOR={{ $editor | quote }}
+export VISUAL={{ $editor | quote }}
 {{- end }}
 export LC_ALL='en_US.UTF-8'
 export LESSHISTFILE='/dev/null'
