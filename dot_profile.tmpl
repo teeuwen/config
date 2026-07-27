@@ -1,7 +1,16 @@
 export XDG_CACHE_HOME="${HOME}/.cache"
 export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_DATA_HOME="${HOME}/.local/share"
-export XDG_DATA_DIRS="{{ if eq .chezmoi.os "darwin" }}/opt/homebrew/share:{{ end }}/usr/local/share:/usr/share"
+export XDG_DATA_DIRS=\
+{{ if eq .chezmoi.os "darwin" -}}
+"/opt/homebrew/share:"\
+{{ else if eq .chezmoi.os "linux" -}}
+"/home/linuxbrew/.linuxbrew/share:"\
+"/var/lib/flatpak/exports/share:"\
+"${XDG_DATA_HOME}/flatpak/exports/share:"\
+{{ end -}}
+"/usr/local/share:"\
+"/usr/share"
 
 if [ -e "${XDG_CONFIG_HOME}/user-dirs.dirs" ]; then
 	source "${XDG_CONFIG_HOME}/user-dirs.dirs"
@@ -50,7 +59,11 @@ export PATH=\
 {{ end -}}
 "${PATH}"
 
-export EDITOR='{{ if eq .chezmoi.os "darwin" }}/opt/homebrew/bin/nvim{{ else }}/home/linuxbrew/.linuxbrew/bin/nvim{{ end }}'
+{{ if eq .chezmoi.os "darwin" -}}
+export EDITOR='/opt/homebrew/bin/nvim'
+{{- else if eq .chezmoi.os "linux" -}}
+export EDITOR='/usr/bin/nvim'
+{{- end }}
 export LC_ALL='en_US.UTF-8'
 export LESSHISTFILE='/dev/null'
 
