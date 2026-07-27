@@ -62,13 +62,18 @@ add_package() {
 }
 
 install_brew_packages() {
-    if ! command -v snap >/dev/null 2>&1; then
+    if ! command -v brew >/dev/null 2>&1; then
         log "Installing Homebrew"
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
 
     local specification
+    local installed_formulae
+    local installed_casks
     local -a arguments
+
+    installed_formulae="$(brew list --formula --full-name)"
+    installed_casks="$(brew list --cask --full-name)"
 
     if ((${#brew_formulae[@]} > 0)); then
         for specification in "${brew_formulae[@]}"; do
@@ -76,6 +81,10 @@ install_brew_packages() {
 
             ((${#arguments[@]} > 0)) ||
                 continue
+
+            if grep -Fqx -e "${arguments[0]}" -e "${arguments[0]##*/}" <<<"$installed_formulae"; then
+                continue
+            fi
 
             log "Installing Homebrew formula: $specification"
             brew install "${arguments[@]}"
@@ -88,6 +97,10 @@ install_brew_packages() {
 
             ((${#arguments[@]} > 0)) ||
                 continue
+
+            if grep -Fqx -e "${arguments[0]}" -e "${arguments[0]##*/}" <<<"$installed_casks"; then
+                continue
+            fi
 
             log "Installing Homebrew cask: $specification"
             brew install --cask "${arguments[@]}"
@@ -155,7 +168,6 @@ install_snap_packages() {
             continue
 
         if snap list "${arguments[0]}" >/dev/null 2>&1; then
-            log "Snap ${arguments[0]} is already installed"
             continue
         fi
 
