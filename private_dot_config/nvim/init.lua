@@ -221,19 +221,19 @@ require('lazy').setup({
                 SelectColor             = { fg = '${purple}' },
 
                 -- Telescope
-                TelescopeBorder         = { fg = "${telescope_results}", bg = "${telescope_results}" },
-                TelescopePromptBorder   = { fg = "${telescope_prompt}", bg = "${telescope_prompt}" },
-                TelescopePromptCounter  = { fg = "${fg}" },
-                TelescopePromptNormal   = { fg = "${fg}", bg = "${telescope_prompt}" },
-                TelescopePromptPrefix   = { fg = "${purple}", bg = "${telescope_prompt}" },
-                TelescopePromptTitle    = { fg = "${telescope_prompt}", bg = "${purple}" },
-                TelescopePreviewTitle   = { fg = "${telescope_results}", bg = "${green}" },
-                TelescopeResultsTitle   = { fg = "${telescope_results}", bg = "${telescope_results}" },
-                TelescopeMatching       = { fg = "${blue}" },
-                TelescopeNormal         = { bg = "${telescope_results}" },
-                TelescopeSelection      = { bg = "${telescope_selection}" },
-                TelescopePreviewNormal  = { bg = "${telescope_preview}" },
-                TelescopePreviewBorder  = { fg = "${telescope_preview}", bg = "${telescope_preview}" },
+                TelescopeBorder         = { fg = '${telescope_results}', bg = '${telescope_results}' },
+                TelescopePromptBorder   = { fg = '${telescope_prompt}', bg = '${telescope_prompt}' },
+                TelescopePromptCounter  = { fg = '${fg}' },
+                TelescopePromptNormal   = { fg = '${fg}', bg = '${telescope_prompt}' },
+                TelescopePromptPrefix   = { fg = '${purple}', bg = '${telescope_prompt}' },
+                TelescopePromptTitle    = { fg = '${telescope_prompt}', bg = '${purple}' },
+                TelescopePreviewTitle   = { fg = '${telescope_results}', bg = '${green}' },
+                TelescopeResultsTitle   = { fg = '${telescope_results}', bg = '${telescope_results}' },
+                TelescopeMatching       = { fg = '${blue}' },
+                TelescopeNormal         = { bg = '${telescope_results}' },
+                TelescopeSelection      = { bg = '${telescope_selection}' },
+                TelescopePreviewNormal  = { bg = '${telescope_preview}' },
+                TelescopePreviewBorder  = { fg = '${telescope_preview}', bg = '${telescope_preview}' },
 
                 -- Window Shadows
                 NormalFloat = {
@@ -370,7 +370,7 @@ require('lazy').setup({
     {
         'nvim-telescope/telescope.nvim',
         cmd = 'Telescope',
-        config = function()
+        config = function(_, _)
             local actions = require('telescope.actions')
 
             local function telescope_open_single_or_multi(bufnr)
@@ -392,6 +392,18 @@ require('lazy').setup({
 
             require('telescope').setup {
                 defaults = {
+                    prompt_prefix = '   ',
+                    selection_caret = ' ',
+                    entry_prefix = ' ',
+                    sorting_strategy = 'ascending',
+                    layout_config = {
+                        horizontal = {
+                            prompt_position = 'top',
+                            preview_width = 0.55,
+                        },
+                        width = 0.87,
+                        height = 0.80,
+                    },
                     mappings = {
                         i = {
                             ['<esc>'] = require('telescope.actions').close,
@@ -708,8 +720,8 @@ cmp.setup {
 -- ThemeObserver ----------------------------------------------------------- {{{
 
 function UpdateColorscheme()
-    local colorscheme = vim.fn.readfile(vim.fn.stdpath("state") .. "/theme")[1]
-    local background = vim.fn.readfile(vim.fn.stdpath("state") .. "/theme")[2]
+    local colorscheme = vim.fn.readfile(vim.fn.stdpath('state') .. '/theme')[1]
+    local background = vim.fn.readfile(vim.fn.stdpath('state') .. '/theme')[2]
 
     vim.cmd('colorscheme ' .. colorscheme)
     so.background = background
