@@ -1,5 +1,6 @@
 -- vim:fileencoding=utf-8:foldmethod=marker
 
+
 -- Variables --------------------------------------------------------------- {{{
 
 local so = vim.opt
@@ -924,5 +925,31 @@ nnoremap('<leader>t', nvimtree.api.tree.toggle)
 
 -- Leader + [/]: NvimTree: Find files
 --nnoremap('<leader>/', nvimtree.api.tree.find_file)
+
+-- }}}
+
+
+-- Local Config ------------------------------------------------------------ {{{
+
+local conf_d_path = vim.fn.stdpath("config") .. "/conf.d"
+local handle = vim.uv.fs_scandir(conf_d_path)
+
+if handle then
+    while true do
+        local name, type = vim.uv.fs_scandir_next(handle)
+        if not name then break end
+
+        if type == "file" and name:match("%.lua$") then
+            local file_path = conf_d_path .. "/" .. name
+
+            local success, err = pcall(vim.cmd, "source " .. file_path)
+            if not success then
+                vim.notify("Error loading " .. name .. ": " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    end
+else
+    vim.notify("conf.d directory not found at " .. conf_d_path, vim.log.levels.WARN)
+end
 
 -- }}}
