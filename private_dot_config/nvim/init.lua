@@ -114,6 +114,7 @@ so.listchars = {
     space = '⋅',                   -- terminal: space indicator
     nbsp  = '␣',                   -- terminal: non-breaking space indicator
 }
+so.pumborder = 'shadow'
 so.winborder = 'shadow'
 
 -- TODO: https://www.reddit.com/r/neovim/comments/1djjc6q/statuscolumn_a_beginers_guide/
@@ -182,9 +183,66 @@ require('lazy').setup({
 
     -- Color scheme
     {
-        'RRethy/base16-nvim',
-        lazy = false,
+        'olimorris/onedarkpro.nvim',
         priority = 1000,
+        opts = {
+            colors = {
+                dark = {
+                    telescope_prompt = "require('onedarkpro.helpers').darken('bg', 1, 'onedark_dark')",
+                    telescope_results = "require('onedarkpro.helpers').darken('bg', 4, 'onedark_dark')",
+                    telescope_preview = "require('onedarkpro.helpers').darken('bg', 6, 'onedark_dark')",
+                    telescope_selection = "require('onedarkpro.helpers').darken('bg', 8, 'onedark_dark')",
+                },
+                light = {
+                    telescope_prompt = "require('onedarkpro.helpers').darken('bg', 2, 'onelight')",
+                    telescope_results = "require('onedarkpro.helpers').darken('bg', 5, 'onelight')",
+                    telescope_preview = "require('onedarkpro.helpers').darken('bg', 7, 'onelight')",
+                    telescope_selection = "require('onedarkpro.helpers').darken('bg', 9, 'onelight')",
+                },
+            },
+            highlights = {
+                -- Barbar
+                BufferTabPageFill       = { bg = '#485760' },
+                BufferCurrent           = { bg = '#FFFFFF', fg = '#000000' },
+                BufferCurrentMod        = { bg = '#FFFFFF', fg = '#000000' },
+                BufferCurrentSign       = { bg = '#FFFFFF', fg = '#FFFFFF' },
+                BufferVisible           = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferVisibleMod        = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferVisibleSign       = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferInactive          = { bg = '#485760', fg = '#FFFFFF' },
+                BufferInactiveMod       = { bg = '#485760', fg = '#FFFFFF' },
+                BufferInactiveSign      = { bg = '#485760', fg = '#FFFFFF' },
+
+                -- Statusline
+                InsertColor             = { fg = '${blue}' },
+                ReplaceColor            = { fg = '${red}' },
+                VisualColor             = { fg = '${yellow}' },
+                SelectColor             = { fg = '${purple}' },
+
+                -- Telescope
+                TelescopeBorder         = { fg = "${telescope_results}", bg = "${telescope_results}" },
+                TelescopePromptBorder   = { fg = "${telescope_prompt}", bg = "${telescope_prompt}" },
+                TelescopePromptCounter  = { fg = "${fg}" },
+                TelescopePromptNormal   = { fg = "${fg}", bg = "${telescope_prompt}" },
+                TelescopePromptPrefix   = { fg = "${purple}", bg = "${telescope_prompt}" },
+                TelescopePromptTitle    = { fg = "${telescope_prompt}", bg = "${purple}" },
+                TelescopePreviewTitle   = { fg = "${telescope_results}", bg = "${green}" },
+                TelescopeResultsTitle   = { fg = "${telescope_results}", bg = "${telescope_results}" },
+                TelescopeMatching       = { fg = "${blue}" },
+                TelescopeNormal         = { bg = "${telescope_results}" },
+                TelescopeSelection      = { bg = "${telescope_selection}" },
+                TelescopePreviewNormal  = { bg = "${telescope_preview}" },
+                TelescopePreviewBorder  = { fg = "${telescope_preview}", bg = "${telescope_preview}" },
+
+                -- Window Shadows
+                NormalFloat = {
+                    bg = { light = '#F0F0F0', dark = '#303030' },
+                },
+                FloatShadow = {
+                    bg = { light = '#000000', dark = '#202020' },
+                },
+            },
+        },
     },
 
     -- Treesitter support
@@ -381,6 +439,11 @@ require('lazy').setup({
         end
     },
 
+    -- Markdown rendering
+    {
+        'meanderingprogrammer/render-markdown.nvim'
+    },
+
     -- Helm file type detection
     {
         'towolf/vim-helm',
@@ -427,6 +490,7 @@ local lsp_servers = {
     ruff = {},
     rust_analyzer = {},
     sqls = {},
+    tailwindcss = {},
     terraformls = {},
     texlab = {},
     ty = {},
@@ -468,10 +532,10 @@ require('mason-lspconfig').setup {
     automatic_enable = false
 }
 
-for server_name, config in pairs(lsp_servers) do
+for server_name, settings in pairs(lsp_servers) do
     vim.lsp.config(server_name, {
         capabilities = lsp_capabilities,
-        settings = config
+        settings = settings
     })
     vim.lsp.enable(server_name)
 end
@@ -640,110 +704,7 @@ cmp.setup {
 -- }}}
 
 
--- Colors ------------------------------------------------------------------ {{{
-
-local colors_light = {
-    -- Gutter
-    --LineNr                = { bg = '#F3F3F3', fg = '#888888' },
-    --SignColumn            = { bg = '#F3F3F3', fg = '#888888' },
-    --DiagnosticSignError   = { bg = '#F3F3F3', fg = '#FF0000', bold = true },
-    --DiagnosticSignWarn    = { bg = '#F3F3F3', fg = '#FFA500', bold = true },
-    --DiagnosticSignHint    = { bg = '#F3F3F3', fg = '#90EE90', bold = true },
-    --DiagnosticSignInfo    = { bg = '#F3F3F3', fg = '#ADD8E6', bold = true },
-
-    -- Statusline
-    --MsgArea               = { bg = '#485760', fg = '#FAFAFA' },
-    --StatusLine            = { bg = '#485760', fg = '#FAFAFA' },
-    --CommandColor          = { bg = '#485760' },
-    --NormalColor           = { bg = '#485760' },
-
-    -- NvimTree
-    BufferOffset          = { bg = '#F3F3F3' },
-    NvimTreeNormal        = { bg = '#F3F3F3', fg = '#888888' },
-    NvimTreeWinSeparator  = { bg = 'NONE',    fg = '#FFFFFF' },
-    NvimTreeCursorLine    = { bg = '#F6CD76', fg = '#0A0D13' },
-
-    -- Diff
-    DiffAdd               = { bg = '#98C379', fg = '#16161D' },
-    DiffChange            = { bg = '#E5C07B', fg = '#16161D' },
-    DiffDelete            = { bg = '#E06C75', fg = '#16161D' },
-
-    -- Windows
-    NormalFloat           = { bg = '#E8E8E8', fg = '#666666' },
-    --FloatBorder           = { bg = '#F8F8F8', fg = '#666666' },
-}
-
-local colors_dark = {
-    -- Gutter
-    --LineNr                = { bg = '#000000', fg = '#666666' },
-    --SignColumn            = { bg = '#000000', fg = '#666666' },
-    --DiagnosticSignError   = { bg = '#000000', fg = '#FF0000', bold = true },
-    --DiagnosticSignWarn    = { bg = '#000000', fg = '#FFA500', bold = true },
-    --DiagnosticSignHint    = { bg = '#000000', fg = '#90EE90', bold = true },
-    --DiagnosticSignInfo    = { bg = '#000000', fg = '#ADD8E6', bold = true },
-
-    -- NvimTree
-    BufferOffset          = { bg = '#222222' },
-    NvimTreeNormal        = { bg = '#222222', fg = '#EEEEEE' },
-    NvimTreeWinSeparator  = { bg = 'NONE',    fg = '#0F0D13' },
-    NvimTreeCursorLine    = { bg = '#F6CD76', fg = '#0A0D13' },
-
-    -- Statusline
-    --MsgArea               = { bg = '#000000', fg = '#FFFFFF' },
-    --StatusLine            = { bg = '#000000', fg = '#FFFFFF' },
-    --CommandColor          = { bg = '#000000' },
-    --NormalColor           = { bg = '#000000' },
-
-    -- Windows
-    NormalFloat           = { bg = '#000000', fg = '#EEEEEE' },
-    --FloatBorder           = { bg = '#000000', fg = '#EEEEEE' },
-}
-
-local colors_generic = {
-    Normal                = { bg = 'NONE' },
-    NormalNC              = { bg = 'NONE' },
-    LineNr                = { bg = 'NONE',    fg = '#666666' },
-    SignColumn            = { bg = 'NONE',    fg = '#666666' },
-    GitSignsAdd           = { bg = 'NONE',    fg = '#088F8F' },
-    GitSignsUntracked     = { bg = 'NONE',    fg = '#088F8F' },
-    GitSignsChange        = { bg = 'NONE',    fg = '#FFA836' },
-    GitSignsChangeDelete  = { bg = 'NONE',    fg = '#3D85C6' },
-    GitSignsDelete        = { bg = 'NONE',    fg = '#A52A2A' },
-    GitSignsTopDelete     = { bg = 'NONE',    fg = '#A52A2A' },
-    DiagnosticSignError   = { bg = 'NONE',    fg = '#FF0000', bold = true },
-    DiagnosticSignWarn    = { bg = 'NONE',    fg = '#FFA500', bold = true },
-    DiagnosticSignHint    = { bg = 'NONE',    fg = '#90EE90', bold = true },
-    DiagnosticSignInfo    = { bg = 'NONE',    fg = '#ADD8E6', bold = true },
-
-    -- BarBar
-    BufferTabPageFill     = { bg = '#485760' },
-    BufferCurrent         = { bg = '#FFFFFF', fg = '#000000' },
-    BufferCurrentMod      = { bg = '#FFFFFF', fg = '#000000' },
-    BufferCurrentSign     = { bg = '#FFFFFF', fg = '#FFFFFF' },
-    BufferVisible         = { bg = '#3C454B', fg = '#FFFFFF' },
-    BufferVisibleMod      = { bg = '#3C454B', fg = '#FFFFFF' },
-    BufferVisibleSign     = { bg = '#3C454B', fg = '#FFFFFF' },
-    BufferInactive        = { bg = '#485760', fg = '#FFFFFF' },
-    BufferInactiveMod     = { bg = '#485760', fg = '#FFFFFF' },
-    BufferInactiveSign    = { bg = '#485760', fg = '#FFFFFF' },
-
-    -- Statusline
-    MsgArea               = { bg = '#385760', fg = '#FAFAFA' },
-    StatusLine            = { bg = '#485760', fg = '#FAFAFA' },
-    CommandColor          = { bg = '#485760' },
-    NormalColor           = { bg = '#485760' },
-    InsertColor           = { bg = '#81ABDC', fg = '#000000' },
-    ReplaceColor          = { bg = '#FFCCCB', fg = '#000000' },
-    VisualColor           = { bg = '#FFFF9F', fg = '#000000' },
-    SelectColor           = { bg = 'Magenta', fg = '#000000' },
-
-    -- Line numbers and linting colors
-    GitColor              = { bg = 'NONE',    fg = '#00FF00' },
-    SpellColor            = { bg = 'NONE',    fg = '#FF0000' },
-
-    TrailingWhitespace    = { bg = '#FF0000' },
-    LspSignatureActiveParameter = { bg = '#000000', fg = '#FFFFFF' },
-}
+-- ThemeObserver ----------------------------------------------------------- {{{
 
 function UpdateColorscheme()
     local colorscheme = vim.fn.readfile(vim.fn.stdpath("state") .. "/theme")[1]
@@ -751,21 +712,6 @@ function UpdateColorscheme()
 
     vim.cmd('colorscheme ' .. colorscheme)
     so.background = background
-
-    if background == 'dark' then
-        for group,colors in pairs(colors_dark) do
-            vim.api.nvim_set_hl(0, group, colors)
-        end
-    else
-        for group,colors in pairs(colors_light) do
-            vim.api.nvim_set_hl(0, group, colors)
-        end
-    end
-
-    -- General colors
-    for group,colors in pairs(colors_generic) do
-        vim.api.nvim_set_hl(0, group, colors)
-    end
 
     vim.cmd('redraw!')
 end
