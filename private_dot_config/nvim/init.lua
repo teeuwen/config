@@ -242,6 +242,8 @@ require('lazy').setup({
                 FloatShadow = {
                     bg = { light = '#000000', dark = '#202020' },
                 },
+                PmenuSbar = { bg = 'NONE' },
+                PmenuThumb = { bg = 'NONE' },
             },
         },
     },
@@ -454,7 +456,15 @@ require('lazy').setup({
 
     -- Markdown rendering
     {
-        'meanderingprogrammer/render-markdown.nvim'
+        'meanderingprogrammer/render-markdown.nvim',
+        opts = {
+            heading = {
+                enabled = false,
+            },
+            code = {
+                language = false,
+            },
+        },
     },
 
     -- Helm file type detection
