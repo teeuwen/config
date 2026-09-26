@@ -20,6 +20,7 @@ alias histstat="fc -l 1 | awk '{ CMD[\$2]++; count++; } END { for (a in CMD) pri
 alias k='kubectl'
 alias proper="print '\E[H\E[3J'"
 alias sudo='sudo '
+alias tf='op run --env-file=terraform/.env -- terraform -chdir=terraform'
 alias vi='nvim'
 alias vim='nvim'
 
