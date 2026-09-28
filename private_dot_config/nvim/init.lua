@@ -15,6 +15,39 @@ so.viminfo:append('n' .. vim.fn.stdpath('state') .. '/history') -- path: history
 
 vim.g.mapleader = 'g'
 
+local function tth(index)
+  assert(index >= 0 and index <= 255, "color index must be 0-255")
+
+  -- 16-231: 6×6×6 color cube
+  if index >= 16 and index <= 231 then
+    local i = index - 16
+
+    local r = math.floor(i / 36)
+    local g = math.floor((i % 36) / 6)
+    local b = i % 6
+
+    local function component(n)
+      return n == 0 and 0 or 55 + n * 40
+    end
+
+    return string.format(
+      "#%02x%02x%02x",
+      component(r),
+      component(g),
+      component(b)
+    )
+  end
+
+  -- 232-255: grayscale
+  if index >= 232 then
+    local v = 8 + (index - 232) * 10
+    return string.format("#%02x%02x%02x", v, v, v)
+  end
+
+  -- 0-15 are terminal-specific
+  return nil
+end
+
 -- }}}
 
 
@@ -203,37 +236,52 @@ require('lazy').setup({
             },
             highlights = {
                 -- Barbar
-                BufferTabPageFill       = { bg = '#485760' },
-                BufferCurrent           = { bg = '#FFFFFF', fg = '#000000' },
-                BufferCurrentMod        = { bg = '#FFFFFF', fg = '#000000' },
-                BufferCurrentSign       = { bg = '#FFFFFF', fg = '#FFFFFF' },
-                BufferVisible           = { bg = '#3C454B', fg = '#FFFFFF' },
-                BufferVisibleMod        = { bg = '#3C454B', fg = '#FFFFFF' },
-                BufferVisibleSign       = { bg = '#3C454B', fg = '#FFFFFF' },
-                BufferInactive          = { bg = '#485760', fg = '#FFFFFF' },
-                BufferInactiveMod       = { bg = '#485760', fg = '#FFFFFF' },
-                BufferInactiveSign      = { bg = '#485760', fg = '#FFFFFF' },
+                BufferTabPageFill           = { bg = '#485760' },
+                BufferCurrent               = { bg = '#FFFFFF', fg = '#000000' },
+                BufferCurrentMod            = { bg = '#FFFFFF', fg = '#000000' },
+                BufferCurrentSign           = { bg = '#FFFFFF', fg = '#FFFFFF' },
+                BufferVisible               = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferVisibleMod            = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferVisibleSign           = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferInactive              = { bg = '#485760', fg = '#FFFFFF' },
+                BufferInactiveMod           = { bg = '#485760', fg = '#FFFFFF' },
+                BufferInactiveSign          = { bg = '#485760', fg = '#FFFFFF' },
 
                 -- Statusline
-                InsertColor             = { fg = '${blue}' },
-                ReplaceColor            = { fg = '${red}' },
-                VisualColor             = { fg = '${yellow}' },
-                SelectColor             = { fg = '${purple}' },
+                InsertColor                 = { fg = '${blue}' },
+                ReplaceColor                = { fg = '${red}' },
+                VisualColor                 = { fg = '${yellow}' },
+                SelectColor                 = { fg = '${purple}' },
 
                 -- Telescope
-                TelescopeBorder         = { fg = '${telescope_results}', bg = '${telescope_results}' },
-                TelescopePromptBorder   = { fg = '${telescope_prompt}', bg = '${telescope_prompt}' },
-                TelescopePromptCounter  = { fg = '${fg}' },
-                TelescopePromptNormal   = { fg = '${fg}', bg = '${telescope_prompt}' },
-                TelescopePromptPrefix   = { fg = '${purple}', bg = '${telescope_prompt}' },
-                TelescopePromptTitle    = { fg = '${telescope_prompt}', bg = '${purple}' },
-                TelescopePreviewTitle   = { fg = '${telescope_results}', bg = '${green}' },
-                TelescopeResultsTitle   = { fg = '${telescope_results}', bg = '${telescope_results}' },
-                TelescopeMatching       = { fg = '${blue}' },
-                TelescopeNormal         = { bg = '${telescope_results}' },
-                TelescopeSelection      = { bg = '${telescope_selection}' },
-                TelescopePreviewNormal  = { bg = '${telescope_preview}' },
-                TelescopePreviewBorder  = { fg = '${telescope_preview}', bg = '${telescope_preview}' },
+                TelescopeBorder             = { fg = '${telescope_results}', bg = '${telescope_results}' },
+                TelescopePromptBorder       = { fg = '${telescope_prompt}', bg = '${telescope_prompt}' },
+                TelescopePromptCounter      = { fg = '${fg}' },
+                TelescopePromptNormal       = { fg = '${fg}', bg = '${telescope_prompt}' },
+                TelescopePromptPrefix       = { fg = '${purple}', bg = '${telescope_prompt}' },
+                TelescopePromptTitle        = { fg = '${telescope_prompt}', bg = '${purple}' },
+                TelescopePreviewTitle       = { fg = '${telescope_results}', bg = '${green}' },
+                TelescopeResultsTitle       = { fg = '${telescope_results}', bg = '${telescope_results}' },
+                TelescopeMatching           = { fg = '${blue}' },
+                TelescopeNormal             = { bg = '${telescope_results}' },
+                TelescopeSelection          = { bg = '${telescope_selection}' },
+                TelescopePreviewNormal      = { bg = '${telescope_preview}' },
+                TelescopePreviewBorder      = { fg = '${telescope_preview}', bg = '${telescope_preview}' },
+
+                -- Render Markdown (render like Glow)
+                RenderMarkdownHeadingBg     = { fg = tth(27),    bg = 'NONE',  bold = true },
+                RenderMarkdownHeading       = { fg = tth(27),    bg = 'NONE',  bold = true },
+                RenderMarkdownH1Bg          = { fg = tth(228),   bg = tth(63), bold = true },
+                RenderMarkdownH6Bg          = { fg = tth(27),    bg = 'NONE',  bold = false },
+
+                RenderMarkdownCode          = { fg = '${black}', bg = 'NONE' },
+                RenderMarkdownCodeFallback  = { fg = '${black}', bg = 'NONE' },
+                RenderMarkdownCodeInline    = { fg = tth(203),   bg = tth(254) },
+
+                RenderMarkdownBullet        = { fg = '${black}', bg = 'NONE' },
+
+                RenderMarkdownTableHead     = { fg = '${black}', bg = 'NONE',  bold = false },
+                RenderMarkdownTableRow      = { fg = '${black}', bg = 'NONE',  bold = false },
 
                 -- Window Shadows
                 NormalFloat = {
@@ -251,10 +299,8 @@ require('lazy').setup({
     -- Treesitter support
     {
         'nvim-treesitter/nvim-treesitter',
-        branch = 'main',
-        version = false,
+        event = { 'BufReadPost', 'BufNewFile' },
         cmd = { 'TSInstall', 'TSBufEnable', 'TSBufDisable', 'TSModuleInfo' },
-        event = 'BufRead',
         build = ':TSUpdate',
         opts = {
             ignore_install = { },
@@ -417,9 +463,10 @@ require('lazy').setup({
         end
     },
 
-    -- Highlight HEX colors
+    -- Highlight hex colors
     {
-        'NvChad/nvim-colorizer.lua',
+        'catgoose/nvim-colorizer.lua',
+        event = 'BufReadPre',
         opts = {}
     },
 
@@ -457,12 +504,49 @@ require('lazy').setup({
     -- Markdown rendering
     {
         'meanderingprogrammer/render-markdown.nvim',
+        dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
         opts = {
             heading = {
-                enabled = false,
+                sign = false,
+                icons = {
+                    ' ',
+                    '## ',
+                    '### ',
+                    '#### ',
+                    '##### ',
+                    '###### ',
+                },
+                position = 'inline',
+                width = 'block',
+                right_pad = 1,
+                backgrounds = {
+                    'RenderMarkdownH1Bg',
+                    'RenderMarkdownHeadingBg',
+                    'RenderMarkdownHeadingBg',
+                    'RenderMarkdownHeadingBg',
+                    'RenderMarkdownHeadingBg',
+                    'RenderMarkdownH6Bg',
+                },
+                foregrounds = {
+                    'RenderMarkdownHeading',
+                    'RenderMarkdownHeading',
+                    'RenderMarkdownHeading',
+                    'RenderMarkdownHeading',
+                    'RenderMarkdownHeading',
+                    'RenderMarkdownHeading',
+                },
             },
             code = {
                 language = false,
+                --disable_background = true,
+                left_margin = 2,
+                inline_pad = 1,
+            },
+            bullet = {
+                icons = { '•', '◦', '⬥', '⬦' },
+            },
+            pipe_table = {
+                border_enabled = false,
             },
         },
     },
