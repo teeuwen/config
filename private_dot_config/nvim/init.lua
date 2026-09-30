@@ -580,7 +580,11 @@ local lsp_servers = {
         }
     },
     jsonls = {},
-    ltex = {
+    ltex_plus = {
+        enabled = {'python'},
+        ltex = {
+            enabled = {'python'},
+        },
         language = 'auto',
         checkFrequency = 'manual'
     },
@@ -664,7 +668,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
             return
         end
 
-        if client.name == 'ltex' then
+        if client.name == 'ltex-ls-plus' then
             require('ltex_extra').setup {}
         end
 
