@@ -552,6 +552,15 @@ require('lazy').setup({
         },
     },
 
+    -- devcontainers
+    {
+        'jedrzejboczar/devcontainers.nvim',
+        dependencies = {
+            'miversen33/netman.nvim',
+        },
+        opts = {},
+    },
+
     -- Helm file type detection
     {
         'towolf/vim-helm',
@@ -639,16 +648,33 @@ local lsp_servers = {
     }
 }
 
+local lsp_client_keys = {
+    before_init = true,
+    cmd = true,
+    init_options = true,
+    root_dir = true,
+}
+
 require('mason-lspconfig').setup {
     ensure_installed = vim.tbl_keys(lsp_servers),
     automatic_enable = false
 }
 
-for server_name, settings in pairs(lsp_servers) do
-    vim.lsp.config(server_name, {
+for server_name, spec in pairs(lsp_servers) do
+    local config = {
         capabilities = lsp_capabilities,
-        settings = settings
-    })
+        settings = {},
+    }
+
+    for key, value in pairs(spec) do
+        if lsp_client_keys[key] then
+            config[key] = value
+        else
+            config.settings[key] = value
+        end
+    end
+
+    vim.lsp.config(server_name, config)
     vim.lsp.enable(server_name)
 end
 
