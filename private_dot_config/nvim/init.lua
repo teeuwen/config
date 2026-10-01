@@ -222,16 +222,16 @@ require('lazy').setup({
         opts = {
             colors = {
                 dark = {
-                    telescope_prompt = "require('onedarkpro.helpers').darken('bg', 1, 'onedark_dark')",
-                    telescope_results = "require('onedarkpro.helpers').darken('bg', 4, 'onedark_dark')",
-                    telescope_preview = "require('onedarkpro.helpers').darken('bg', 6, 'onedark_dark')",
-                    telescope_selection = "require('onedarkpro.helpers').darken('bg', 8, 'onedark_dark')",
+                    telescope_prompt = "require('onedarkpro.helpers').lighten('bg', 1, 'onedark_dark')",
+                    telescope_results = "require('onedarkpro.helpers').lighten('bg', 4, 'onedark_dark')",
+                    telescope_preview = "require('onedarkpro.helpers').lighten('bg', 6, 'onedark_dark')",
+                    selection = "require('onedarkpro.helpers').lighten('bg', 9, 'onedark_dark')",
                 },
                 light = {
                     telescope_prompt = "require('onedarkpro.helpers').darken('bg', 2, 'onelight')",
                     telescope_results = "require('onedarkpro.helpers').darken('bg', 5, 'onelight')",
                     telescope_preview = "require('onedarkpro.helpers').darken('bg', 7, 'onelight')",
-                    telescope_selection = "require('onedarkpro.helpers').darken('bg', 9, 'onelight')",
+                    selection = "require('onedarkpro.helpers').darken('bg', 9, 'onelight')",
                 },
             },
             highlights = {
@@ -264,9 +264,14 @@ require('lazy').setup({
                 TelescopeResultsTitle       = { fg = '${telescope_results}', bg = '${telescope_results}' },
                 TelescopeMatching           = { fg = '${blue}' },
                 TelescopeNormal             = { bg = '${telescope_results}' },
-                TelescopeSelection          = { bg = '${telescope_selection}' },
+                TelescopeSelection          = { bg = '${selection}' },
                 TelescopePreviewNormal      = { bg = '${telescope_preview}' },
                 TelescopePreviewBorder      = { fg = '${telescope_preview}', bg = '${telescope_preview}' },
+
+                -- Neo-tree
+                NeoTreeCursorLine           = { bg = '${selection}' },
+                NeoTreeDirectoryIcon        = { fg = '${yellow}' },
+                NeoTreeDirectoryName        = { fg = '${black}' },
 
                 -- Render Markdown (render like Glow)
                 RenderMarkdownHeadingBg     = { fg = tth(27),    bg = 'NONE',  bold = true },
@@ -381,7 +386,9 @@ require('lazy').setup({
             animation = false,
             auto_hide = 1,
             insert_at_end = true,
-            sidebar_filetypes = { NvimTree = true }
+            sidebar_filetypes = {
+                ['neo-tree'] = { event = 'BufWipeout' }
+            },
         }
     },
 
@@ -473,12 +480,114 @@ require('lazy').setup({
 
     -- File tree
     {
-        'nvim-tree/nvim-tree.lua',
-        cmd = { 'NvimTreeToggle', 'NvimTreeFocus' },
+        'nvim-neo-tree/neo-tree.nvim',
+        branch = 'v3.x',
         dependencies = {
-            -- File tree icons
-            { 'kyazdani42/nvim-web-devicons' },
-        }
+            'nvim-lua/plenary.nvim',
+            'MunifTanjim/nui.nvim',
+            'nvim-tree/nvim-web-devicons',
+        },
+        lazy = false,
+        keys = {
+            {
+                "<leader>t",
+                function()
+                    require("neo-tree.command").execute({ toggle = true, dir = vim.fs.root(0, '.git') })
+                end,
+            },
+        },
+        init = function()
+            local saved_guicursor = vim.o.guicursor
+
+            local function update_cursor()
+                if vim.bo.filetype == "neo-tree" then
+                    vim.api.nvim_set_hl(0, "HiddenCursor", { blend = 100, nocombine = true })
+                    vim.o.guicursor = saved_guicursor .. ",n:block-HiddenCursor"
+                else
+                    vim.o.guicursor = saved_guicursor
+                end
+            end
+
+            vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "FileType" }, {
+                callback = function()
+                    vim.schedule(update_cursor)
+                end,
+            })
+
+            vim.api.nvim_create_autocmd("VimEnter", {
+                once = true,
+                callback = function()
+                    local ft = vim.bo.filetype
+                    if ft == "gitcommit" or ft == "gitrebase" or vim.o.diff then
+                        return
+                    end
+                    local root = vim.fs.root(0, ".git")
+                    if not root then
+                        return
+                    end
+
+                    -- resolve symlinks so the comparison works either way
+                    local repos = vim.uv.fs_realpath(vim.fs.normalize("~/repositories"))
+                    root = vim.uv.fs_realpath(root) or root
+
+                    local dir = root
+                    if repos and vim.startswith(root, repos .. "/") then
+                        dir = repos
+                    end
+
+                    local file = vim.api.nvim_buf_get_name(0)
+                    local target = (file ~= "" and vim.uv.fs_stat(file)) and file or root
+
+                    if target == root then
+                        vim.g.neotree_expand_on_start = root
+                    end
+
+                    require("neo-tree.command").execute({
+                        action = "show",
+                        source = "filesystem",
+                        dir = dir,
+                        reveal_file = target,
+                    })
+                end,
+            })
+        end,
+        opts = {
+            close_if_last_window = true,
+            popup_border_style = '',
+            enable_diagnostics = false,
+            enable_cursor_hijack = true,
+            event_handlers = {
+                {
+                    event = "neo_tree_buffer_enter",
+                    handler = function()
+                        vim.opt_local.cursorline = true
+                    end,
+                },
+                {
+                    event = "after_render",
+                    handler = function(state)
+                        local target = vim.g.neotree_expand_on_start
+                        if not target or state.name ~= "filesystem" then
+                            return
+                        end
+
+                        vim.g.neotree_expand_on_start = nil  -- only once, and avoids re-render loops
+
+                        local node = state.tree:get_node(target)
+                        if node and node.type == "directory" and not node:is_expanded() then
+                            require("neo-tree.sources.filesystem").toggle_directory(state, node)
+                        end
+                    end,
+                },
+            },
+            filesystem = {
+                bind_to_cwd = false,
+                follow_current_file = {
+                    enabled = true,
+                },
+                use_libuv_file_watcher = true,
+            },
+        },
     },
 
     -- Comment functions
@@ -910,128 +1019,6 @@ so.statusline = createstatusline()
 -- }}}
 
 
--- NvimTree ---------------------------------------------------------------- {{{
-
-local nvimtree = { api = require('nvim-tree.api') }
-
-local function nvim_tree_on_attach(bufnr)
-    nvimtree.api.config.mappings.default_on_attach(bufnr)
-
-    local function opts(desc)
-        return {
-            desc    = 'nvim-tree: ' .. desc,
-            buffer  = bufnr,
-            noremap = true,
-            silent  = true,
-            nowait  = true
-        }
-    end
-
-    vim.keymap.set('n', '<Space>', nvimtree.api.node.open.edit, opts('Open'))
-    vim.keymap.set('n', 'o', nvimtree.api.node.open.edit, opts('Open'))
-    vim.keymap.set('n', '<LeftRelease>', nvimtree.api.node.open.edit, opts('Open'))
-end
-
-require('nvim-tree').setup {
-    disable_netrw       = true,
-    hijack_netrw        = true,
-    open_on_tab         = false,
-    hijack_cursor       = false,
-    update_cwd          = false,
-
-    actions = {
-        open_file = {
-            resize_window = false
-        }
-    },
-
-    diagnostics = {
-        enable = false,
-    },
-
-    filters = {
-        dotfiles = false,
-        custom   = {}
-    },
-
-    git = {
-        enable  = true,
-        ignore  = true,
-        timeout = 500,
-    },
-
-    hijack_directories = {
-        enable    = true,
-        auto_open = true,
-    },
-
-    update_focused_file = {
-        enable      = false,
-        update_cwd  = false,
-        ignore_list = {}
-    },
-
-    renderer = {
-        root_folder_label = false,
-        add_trailing      = true,
-        highlight_git     = true,
-        indent_markers    = {
-            enable = true
-        },
-        icons = {
-            show = {
-                git          = false,
-                folder       = true,
-                file         = true,
-                folder_arrow = false
-            }
-        },
-        special_files      = {}
-    },
-
-    view = {
-        cursorline     = false,
-        width          = 30,
-        side           = 'left',
-        number         = false,
-        relativenumber = false,
-        signcolumn     = 'yes'
-    },
-
-    on_attach = nvim_tree_on_attach,
-
-    trash = {
-        cmd             = 'trash',
-        require_confirm = true
-    }
-}
-
--- Blank statusline when NvimTree is focused
-nvimtree.api.events.subscribe(nvimtree.api.events.Event.TreeOpen, function()
-    wo.statusline = '%#StatusLine#'
-end)
-
--- Hide cursor in NvimTree
-vim.api.nvim_create_autocmd({ 'WinEnter', 'BufWinEnter' }, {
-  pattern = 'NvimTree*',
-  callback = function()
-    local def = vim.api.nvim_get_hl_by_name('Cursor', true)
-    vim.api.nvim_set_hl(0, 'Cursor', vim.tbl_extend('force', def, { blend = 100 }))
-    so.guicursor:append('a:Cursor/lCursor')
-  end,
-})
-vim.api.nvim_create_autocmd({ 'BufLeave', 'WinClosed' }, {
-  pattern = 'NvimTree*',
-  callback = function()
-    local def = vim.api.nvim_get_hl_by_name('Cursor', true)
-    vim.api.nvim_set_hl(0, 'Cursor', vim.tbl_extend('force', def, { blend = 0 }))
-    so.guicursor = 'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20'
-  end,
-})
-
--- }}}
-
-
 -- Keybindings ------------------------------------------------------------- {{{
 
 local function nnoremap(keys, cmd)
@@ -1056,12 +1043,6 @@ nnoremap('<leader>k', ':setl list!<CR>')
 
 -- Leader + [s]: Toggle spelling check
 nnoremap('<leader>s', ':setl invspell<CR>')
-
--- Leader + [t]: NvimTree: Open
-nnoremap('<leader>t', nvimtree.api.tree.toggle)
-
--- Leader + [/]: NvimTree: Find files
---nnoremap('<leader>/', nvimtree.api.tree.find_file)
 
 -- }}}
 
