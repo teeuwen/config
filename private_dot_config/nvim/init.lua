@@ -1,6 +1,5 @@
 -- vim:fileencoding=utf-8:foldmethod=marker
 
-
 -- Variables --------------------------------------------------------------- {{{
 
 local so = vim.opt
@@ -49,7 +48,6 @@ local function tth(index)
 end
 
 -- }}}
-
 
 -- General ----------------------------------------------------------------- {{{
 
@@ -192,7 +190,6 @@ vim.cmd [[aunmenu PopUp.-2-]]
 
 -- }}}
 
-
 -- Packages ---------------------------------------------------------------- {{{
 
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
@@ -209,175 +206,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-    -- Plugin Frameworks
-    {
-        'nvim-lua/plenary.nvim',
-        events = 'VeryLazy',
-    },
-
-    -- Color scheme
-    {
-        'olimorris/onedarkpro.nvim',
-        priority = 1000,
-        opts = {
-            colors = {
-                dark = {
-                    telescope_prompt = "require('onedarkpro.helpers').lighten('bg', 1, 'onedark_dark')",
-                    telescope_results = "require('onedarkpro.helpers').lighten('bg', 4, 'onedark_dark')",
-                    telescope_preview = "require('onedarkpro.helpers').lighten('bg', 6, 'onedark_dark')",
-                    selection = "require('onedarkpro.helpers').lighten('bg', 9, 'onedark_dark')",
-                },
-                light = {
-                    telescope_prompt = "require('onedarkpro.helpers').darken('bg', 2, 'onelight')",
-                    telescope_results = "require('onedarkpro.helpers').darken('bg', 5, 'onelight')",
-                    telescope_preview = "require('onedarkpro.helpers').darken('bg', 7, 'onelight')",
-                    selection = "require('onedarkpro.helpers').darken('bg', 9, 'onelight')",
-                },
-            },
-            highlights = {
-                -- Barbar
-                BufferTabPageFill           = { bg = '#485760' },
-                BufferCurrent               = { bg = '#FFFFFF', fg = '#000000' },
-                BufferCurrentMod            = { bg = '#FFFFFF', fg = '#000000' },
-                BufferCurrentSign           = { bg = '#FFFFFF', fg = '#FFFFFF' },
-                BufferVisible               = { bg = '#3C454B', fg = '#FFFFFF' },
-                BufferVisibleMod            = { bg = '#3C454B', fg = '#FFFFFF' },
-                BufferVisibleSign           = { bg = '#3C454B', fg = '#FFFFFF' },
-                BufferInactive              = { bg = '#485760', fg = '#FFFFFF' },
-                BufferInactiveMod           = { bg = '#485760', fg = '#FFFFFF' },
-                BufferInactiveSign          = { bg = '#485760', fg = '#FFFFFF' },
-
-                -- Statusline
-                InsertColor                 = { fg = '${blue}' },
-                ReplaceColor                = { fg = '${red}' },
-                VisualColor                 = { fg = '${yellow}' },
-                SelectColor                 = { fg = '${purple}' },
-
-                -- Telescope
-                TelescopeBorder             = { fg = '${telescope_results}', bg = '${telescope_results}' },
-                TelescopePromptBorder       = { fg = '${telescope_prompt}', bg = '${telescope_prompt}' },
-                TelescopePromptCounter      = { fg = '${fg}' },
-                TelescopePromptNormal       = { fg = '${fg}', bg = '${telescope_prompt}' },
-                TelescopePromptPrefix       = { fg = '${purple}', bg = '${telescope_prompt}' },
-                TelescopePromptTitle        = { fg = '${telescope_prompt}', bg = '${purple}' },
-                TelescopePreviewTitle       = { fg = '${telescope_results}', bg = '${green}' },
-                TelescopeResultsTitle       = { fg = '${telescope_results}', bg = '${telescope_results}' },
-                TelescopeMatching           = { fg = '${blue}' },
-                TelescopeNormal             = { bg = '${telescope_results}' },
-                TelescopeSelection          = { bg = '${selection}' },
-                TelescopePreviewNormal      = { bg = '${telescope_preview}' },
-                TelescopePreviewBorder      = { fg = '${telescope_preview}', bg = '${telescope_preview}' },
-
-                -- Neo-tree
-                NeoTreeCursorLine           = { bg = '${selection}' },
-                NeoTreeDirectoryIcon        = { fg = '${yellow}' },
-                NeoTreeDirectoryName        = { fg = '${black}' },
-
-                -- Render Markdown (render like Glow)
-                RenderMarkdownHeadingBg     = { fg = tth(27),    bg = 'NONE',  bold = true },
-                RenderMarkdownHeading       = { fg = tth(27),    bg = 'NONE',  bold = true },
-                RenderMarkdownH1Bg          = { fg = tth(228),   bg = tth(63), bold = true },
-                RenderMarkdownH6Bg          = { fg = tth(27),    bg = 'NONE',  bold = false },
-
-                RenderMarkdownCode          = { fg = '${black}', bg = 'NONE' },
-                RenderMarkdownCodeFallback  = { fg = '${black}', bg = 'NONE' },
-                RenderMarkdownCodeInline    = { fg = tth(203),   bg = tth(254) },
-
-                RenderMarkdownBullet        = { fg = '${black}', bg = 'NONE' },
-
-                RenderMarkdownTableHead     = { fg = '${black}', bg = 'NONE',  bold = false },
-                RenderMarkdownTableRow      = { fg = '${black}', bg = 'NONE',  bold = false },
-
-                -- Window Shadows
-                NormalFloat = {
-                    bg = { light = '#F0F0F0', dark = '#303030' },
-                },
-                FloatShadow = {
-                    bg = { light = '#000000', dark = '#202020' },
-                },
-                PmenuSbar = { bg = 'NONE' },
-                PmenuThumb = { bg = 'NONE' },
-            },
-        },
-    },
-
-    -- Treesitter support
-    {
-        'nvim-treesitter/nvim-treesitter',
-        branch = 'main',
-        event = { 'BufReadPost', 'BufNewFile' },
-        cmd = { 'TSInstall', 'TSBufEnable', 'TSBufDisable', 'TSModuleInfo' },
-        build = ':TSUpdate',
-        opts = {
-            ignore_install = { },
-            auto_install = true,
-            sync_install = false,
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = false,
-            },
-            indent = {
-                enable = false,
-            }
-        },
-        config = function(_, opts)
-            require('nvim-treesitter.config').setup(opts)
-        end,
-    },
-
-    -- Show function name on top line
-    {
-        'nvim-treesitter/nvim-treesitter-context',
-        event = 'BufRead',
-        opts = {
-            multiwindow = true,
-            max_lines = 1,
-            trim_scope = 'inner',
-            mode = 'topline',
-        },
-        config = function(_, opts)
-            require('treesitter-context').setup(opts)
-        end,
-    },
-
-    -- LSP package manager
-    {
-        'mason-org/mason.nvim',
-        opts = {}
-    },
-
-    -- LSP package manager helper
-    {
-        'mason-org/mason-lspconfig.nvim',
-        dependencies = {
-            { 'neovim/nvim-lspconfig' }  -- Language server configuration
-        }
-    },
-
-    -- LSP status display
-    {
-        'j-hui/fidget.nvim',
-        event = 'LspAttach',
-        opts = {
-            progress = {
-                ignore = { 'ltex' },
-            },
-        },
-    },
-
-    -- Autocompletion
-    {
-        'hrsh7th/nvim-cmp',
-        dependencies = {
-            { 'hrsh7th/cmp-nvim-lsp' },                -- LSP support
-            { 'hrsh7th/cmp-nvim-lsp-signature-help' }, -- Signature while typing
-            { 'L3MON4D3/LuaSnip' },                    -- Snippet support
-            { 'saadparwaiz1/cmp_luasnip' },            -- Snippet completion
-            { 'rafamadriz/friendly-snippets' },        -- Predefined snippets
-        }
-    },
-
-    -- Buffer tab line
+    -- barbar.nvim                  (buffer tab line) {{{
     {
         'romgrk/barbar.nvim',
         event = 'BufEnter',
@@ -391,17 +220,33 @@ require('lazy').setup({
             },
         }
     },
+    -- }}}
 
-    -- Floating winbar
+    -- devcontainers.nvim {{{
     {
-        'b0o/incline.nvim',
-        opts = {
-            hide = { cursorline = 'focused_win' },
-            window = { margin = { horizontal = 1, vertical = 0 } }
-        }
+        'jedrzejboczar/devcontainers.nvim',
+        dependencies = {
+            'miversen33/netman.nvim',
+        },
+        opts = {},
     },
+    -- }}}
 
-    -- Git in signcolumn
+    -- diffview.nvim                (git difftool) {{{
+    {
+        'sindrets/diffview.nvim'
+    },
+    -- }}}
+
+    -- fidget.nvim                  (LSP status display) {{{
+    {
+        'j-hui/fidget.nvim',
+        event = 'LspAttach',
+        opts = {},
+    },
+    -- }}}
+
+    -- gitsigns.nvim                (git in signcolumn) {{{
     {
         'lewis6991/gitsigns.nvim',
         opts = {
@@ -415,70 +260,39 @@ require('lazy').setup({
             },
         }
     },
+    -- }}}
 
-    -- Git difftool
+    -- incline.nvim                 (floating winbar) {{{
     {
-        'sindrets/diffview.nvim'
+        'b0o/incline.nvim',
+        opts = {
+            hide = { cursorline = 'focused_win' },
+            window = { margin = { horizontal = 1, vertical = 0 } }
+        }
     },
+    -- }}}
 
-    -- Ctrl-P
-    -- Note: Make sure ripgrep is installed!
+    -- ltex_extra.nvim              (LTeX LSP support) {{{
+    { 'barreiroleo/ltex_extra.nvim' },
+    -- }}}
+
+    -- mason.nvim                   (LSP package manager) {{{
     {
-        'nvim-telescope/telescope.nvim',
-        cmd = 'Telescope',
-        config = function(_, _)
-            local actions = require('telescope.actions')
-
-            local function telescope_open_single_or_multi(bufnr)
-                local actions_state = require('telescope.actions.state')
-                local single_selection = actions_state.get_selected_entry()
-                local multi_selection = actions_state.get_current_picker(bufnr):get_multi_selection()
-                if not vim.tbl_isempty(multi_selection) then
-                    actions.close(bufnr)
-                    for _, file in pairs(multi_selection) do
-                    if file.path ~= nil then
-                        vim.cmd(string.format('edit %s', file.path))
-                    end
-                    end
-                    vim.cmd(string.format('edit %s', single_selection.path))
-                else
-                    actions.select_default(bufnr)
-                end
-            end
-
-            require('telescope').setup {
-                defaults = {
-                    prompt_prefix = '   ',
-                    selection_caret = ' ',
-                    entry_prefix = ' ',
-                    sorting_strategy = 'ascending',
-                    layout_config = {
-                        horizontal = {
-                            prompt_position = 'top',
-                            preview_width = 0.55,
-                        },
-                        width = 0.87,
-                        height = 0.80,
-                    },
-                    mappings = {
-                        i = {
-                            ['<esc>'] = require('telescope.actions').close,
-                            ['<CR>'] = telescope_open_single_or_multi,
-                        },
-                    },
-                },
-            }
-        end
-    },
-
-    -- Highlight hex colors
-    {
-        'catgoose/nvim-colorizer.lua',
-        event = 'BufReadPre',
+        'mason-org/mason.nvim',
         opts = {}
     },
+    -- }}}
 
-    -- File tree
+    -- mason-lspconfig.nvim         (LSP package manager helper) {{{
+    {
+        'mason-org/mason-lspconfig.nvim',
+        dependencies = {
+            { 'neovim/nvim-lspconfig' }  -- Language server configuration
+        }
+    },
+    -- }}}
+
+    -- neo-tree.nvim                (file tree explorer) {{{
     {
         'nvim-neo-tree/neo-tree.nvim',
         branch = 'v3.x',
@@ -589,29 +403,144 @@ require('lazy').setup({
             },
         },
     },
+    -- }}}
 
-    -- Comment functions
+    -- nerdcommenter                (comment shortcuts) {{{
     { 'preservim/nerdcommenter' },
+    -- }}}
 
-    -- Transparent pasting
-    { 'ConradIrwin/vim-bracketed-paste' },
-
-    -- Easy align
-    { 'junegunn/vim-easy-align' },
-
-    -- LTeX LSP addons
-    { 'barreiroleo/ltex_extra.nvim' },
-
-    -- LaTeX live PDF output
+    -- nvim-cmp                     (autocomplete) {{{
     {
-        'lervag/vimtex',
-        lazy = false,
-        init = function()
-            vim.g.vimtex_view_method = 'skim'
-        end
+        'hrsh7th/nvim-cmp',
+        dependencies = {
+            { 'hrsh7th/cmp-nvim-lsp' },                -- LSP support
+            { 'hrsh7th/cmp-nvim-lsp-signature-help' }, -- Signature while typing
+            { 'L3MON4D3/LuaSnip' },                    -- Snippet support
+            { 'saadparwaiz1/cmp_luasnip' },            -- Snippet completion
+            { 'rafamadriz/friendly-snippets' },        -- Predefined snippets
+        }
     },
+    -- }}}
 
-    -- Markdown rendering
+    -- nvim-colorizer.lua           (highlight colors) {{{
+    {
+        'catgoose/nvim-colorizer.lua',
+        event = 'BufReadPre',
+        opts = {}
+    },
+    -- }}}
+
+    -- nvim-treesitter-context      (sticky function names) {{{
+    {
+        'nvim-treesitter/nvim-treesitter-context',
+        event = 'BufRead',
+        opts = {
+            multiwindow = true,
+            max_lines = 1,
+            trim_scope = 'inner',
+            mode = 'topline',
+        },
+        config = function(_, opts)
+            require('treesitter-context').setup(opts)
+        end,
+    },
+    -- }}}
+
+    -- onedarkpro.nvim              (color scheme) {{{
+    {
+        'olimorris/onedarkpro.nvim',
+        priority = 1000,
+        opts = {
+            colors = {
+                dark = {
+                    telescope_prompt = "require('onedarkpro.helpers').lighten('bg', 1, 'onedark_dark')",
+                    telescope_results = "require('onedarkpro.helpers').lighten('bg', 4, 'onedark_dark')",
+                    telescope_preview = "require('onedarkpro.helpers').lighten('bg', 6, 'onedark_dark')",
+                    selection = "require('onedarkpro.helpers').lighten('bg', 9, 'onedark_dark')",
+                },
+                light = {
+                    telescope_prompt = "require('onedarkpro.helpers').darken('bg', 2, 'onelight')",
+                    telescope_results = "require('onedarkpro.helpers').darken('bg', 5, 'onelight')",
+                    telescope_preview = "require('onedarkpro.helpers').darken('bg', 7, 'onelight')",
+                    selection = "require('onedarkpro.helpers').darken('bg', 9, 'onelight')",
+                },
+            },
+            highlights = {
+                -- Barbar
+                BufferTabPageFill           = { bg = '#485760' },
+                BufferCurrent               = { bg = '#FFFFFF', fg = '#000000' },
+                BufferCurrentMod            = { bg = '#FFFFFF', fg = '#000000' },
+                BufferCurrentSign           = { bg = '#FFFFFF', fg = '#FFFFFF' },
+                BufferVisible               = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferVisibleMod            = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferVisibleSign           = { bg = '#3C454B', fg = '#FFFFFF' },
+                BufferInactive              = { bg = '#485760', fg = '#FFFFFF' },
+                BufferInactiveMod           = { bg = '#485760', fg = '#FFFFFF' },
+                BufferInactiveSign          = { bg = '#485760', fg = '#FFFFFF' },
+
+                -- Statusline
+                InsertColor                 = { fg = '${blue}' },
+                ReplaceColor                = { fg = '${red}' },
+                VisualColor                 = { fg = '${yellow}' },
+                SelectColor                 = { fg = '${purple}' },
+
+                -- Telescope
+                TelescopeBorder             = { fg = '${telescope_results}', bg = '${telescope_results}' },
+                TelescopePromptBorder       = { fg = '${telescope_prompt}', bg = '${telescope_prompt}' },
+                TelescopePromptCounter      = { fg = '${fg}' },
+                TelescopePromptNormal       = { fg = '${fg}', bg = '${telescope_prompt}' },
+                TelescopePromptPrefix       = { fg = '${purple}', bg = '${telescope_prompt}' },
+                TelescopePromptTitle        = { fg = '${telescope_prompt}', bg = '${purple}' },
+                TelescopePreviewTitle       = { fg = '${telescope_results}', bg = '${green}' },
+                TelescopeResultsTitle       = { fg = '${telescope_results}', bg = '${telescope_results}' },
+                TelescopeMatching           = { fg = '${blue}' },
+                TelescopeNormal             = { bg = '${telescope_results}' },
+                TelescopeSelection          = { bg = '${selection}' },
+                TelescopePreviewNormal      = { bg = '${telescope_preview}' },
+                TelescopePreviewBorder      = { fg = '${telescope_preview}', bg = '${telescope_preview}' },
+
+                -- Neo-tree
+                NeoTreeCursorLine           = { bg = '${selection}' },
+                NeoTreeDirectoryIcon        = { fg = '${yellow}' },
+                NeoTreeDirectoryName        = { fg = '${black}' },
+
+                -- Render Markdown (render like Glow)
+                RenderMarkdownHeadingBg     = { fg = tth(27),    bg = 'NONE',  bold = true },
+                RenderMarkdownHeading       = { fg = tth(27),    bg = 'NONE',  bold = true },
+                RenderMarkdownH1Bg          = { fg = tth(228),   bg = tth(63), bold = true },
+                RenderMarkdownH6Bg          = { fg = tth(27),    bg = 'NONE',  bold = false },
+
+                RenderMarkdownCode          = { fg = '${black}', bg = 'NONE' },
+                RenderMarkdownCodeFallback  = { fg = '${black}', bg = 'NONE' },
+                RenderMarkdownCodeInline    = { fg = tth(203),   bg = tth(254) },
+
+                RenderMarkdownBullet        = { fg = '${black}', bg = 'NONE' },
+
+                RenderMarkdownTableHead     = { fg = '${black}', bg = 'NONE',  bold = false },
+                RenderMarkdownTableRow      = { fg = '${black}', bg = 'NONE',  bold = false },
+
+                -- Window Shadows
+                NormalFloat = {
+                    bg = { light = '#F0F0F0', dark = '#303030' },
+                },
+                FloatShadow = {
+                    bg = { light = '#000000', dark = '#202020' },
+                },
+                PmenuSbar = { bg = 'NONE' },
+                PmenuThumb = { bg = 'NONE' },
+            },
+        },
+    },
+    -- }}}
+
+    -- plenary.nvim                 (plugin framework) {{{
+    {
+        'nvim-lua/plenary.nvim',
+        events = 'VeryLazy',
+    },
+    -- }}}
+
+    -- render-markdown.nvim {{{
     {
         'meanderingprogrammer/render-markdown.nvim',
         dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
@@ -648,7 +577,6 @@ require('lazy').setup({
             },
             code = {
                 language = false,
-                --disable_background = true,
                 left_margin = 2,
                 inline_pad = 1,
             },
@@ -660,25 +588,107 @@ require('lazy').setup({
             },
         },
     },
+    -- }}}
 
-    -- devcontainers
+    -- telescope.nvim               (fuzzy finder) {{{
+    -- Note: Make sure ripgrep is installed!
     {
-        'jedrzejboczar/devcontainers.nvim',
-        dependencies = {
-            'miversen33/netman.nvim',
-        },
-        opts = {},
-    },
+        'nvim-telescope/telescope.nvim',
+        cmd = 'Telescope',
+        config = function(_, _)
+            local actions = require('telescope.actions')
 
-    -- Helm file type detection
+            local function telescope_open_single_or_multi(bufnr)
+                local actions_state = require('telescope.actions.state')
+                local single_selection = actions_state.get_selected_entry()
+                local multi_selection = actions_state.get_current_picker(bufnr):get_multi_selection()
+                if not vim.tbl_isempty(multi_selection) then
+                    actions.close(bufnr)
+                    for _, file in pairs(multi_selection) do
+                    if file.path ~= nil then
+                        vim.cmd(string.format('edit %s', file.path))
+                    end
+                    end
+                    vim.cmd(string.format('edit %s', single_selection.path))
+                else
+                    actions.select_default(bufnr)
+                end
+            end
+
+            require('telescope').setup {
+                defaults = {
+                    prompt_prefix = '   ',
+                    selection_caret = ' ',
+                    entry_prefix = ' ',
+                    sorting_strategy = 'ascending',
+                    layout_config = {
+                        horizontal = {
+                            prompt_position = 'top',
+                            preview_width = 0.55,
+                        },
+                        width = 0.87,
+                        height = 0.80,
+                    },
+                    mappings = {
+                        i = {
+                            ['<esc>'] = require('telescope.actions').close,
+                            ['<CR>'] = telescope_open_single_or_multi,
+                        },
+                    },
+                },
+            }
+        end
+    },
+    -- }}}
+
+    -- treesitter                   (syntax highlighting) {{{
+    {
+        'nvim-treesitter/nvim-treesitter',
+        branch = 'main',
+        event = { 'BufReadPost', 'BufNewFile' },
+        cmd = { 'TSInstall', 'TSBufEnable', 'TSBufDisable', 'TSModuleInfo' },
+        build = ':TSUpdate',
+        opts = {
+            ignore_install = { },
+            auto_install = true,
+            sync_install = false,
+            highlight = {
+                enable = true,
+                additional_vim_regex_highlighting = false,
+            },
+            indent = {
+                enable = false,
+            }
+        },
+        config = function(_, opts)
+            require('nvim-treesitter.config').setup(opts)
+        end,
+    },
+    -- }}}
+
+    -- vim-bracketed-paste          (automatic :set paste) {{{
+    { 'ConradIrwin/vim-bracketed-paste' },
+    -- }}}
+
+    -- vim-helm                     (Helm file type detection) {{{
     {
         'towolf/vim-helm',
         ft = 'helm'
     },
+    -- }}}
+
+    -- vimtex                       (LaTeX live PDF output) {{{
+    {
+        'lervag/vimtex',
+        lazy = false,
+        init = function()
+            vim.g.vimtex_view_method = 'skim'
+        end
+    },
+    -- }}}
 })
 
 -- }}}
-
 
 -- LSP --------------------------------------------------------------------- {{{
 
@@ -950,7 +960,6 @@ cmp.setup {
 
 -- }}}
 
-
 -- ThemeObserver ----------------------------------------------------------- {{{
 
 function UpdateColorscheme()
@@ -980,7 +989,6 @@ vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
 })
 
 -- }}}
-
 
 -- Statusline -------------------------------------------------------------- {{{
 
@@ -1018,7 +1026,6 @@ so.statusline = createstatusline()
 
 -- }}}
 
-
 -- Keybindings ------------------------------------------------------------- {{{
 
 local function nnoremap(keys, cmd)
@@ -1045,7 +1052,6 @@ nnoremap('<leader>k', ':setl list!<CR>')
 nnoremap('<leader>s', ':setl invspell<CR>')
 
 -- }}}
-
 
 -- Local Config ------------------------------------------------------------ {{{
 
