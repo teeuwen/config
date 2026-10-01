@@ -179,7 +179,7 @@ vim.api.nvim_create_autocmd({ 'BufEnter' }, {
 
 -- Remove How to disable mouse from right click menu
 vim.cmd [[aunmenu PopUp.How-to\ disable\ mouse]]
-vim.cmd [[aunmenu PopUp.-1-]]
+vim.cmd [[aunmenu PopUp.-2-]]
 
 -- Highlight characters over 120 columns
 --au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>120v.\+', -1)
