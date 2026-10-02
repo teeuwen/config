@@ -108,7 +108,7 @@ if [ ${UID} -ne {{ .chezmoi.uid }} ]; then
 fi
 
 if [ -n "${SSH_CLIENT}" ] || [ -n "${SSH_TTY}" ]; then
-    PROMPT='%F{white}%M%f'${PROMPT}
+    PROMPT='%F{gray}%M%f'${PROMPT}
 fi
 
 # Git branch in prompt
