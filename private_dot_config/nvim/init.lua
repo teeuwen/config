@@ -502,7 +502,7 @@ require('lazy').setup({
                 -- Neo-tree
                 NeoTreeCursorLine           = { bg = '${selection}' },
                 NeoTreeDirectoryIcon        = { fg = '${yellow}' },
-                NeoTreeDirectoryName        = { fg = '${black}' },
+                NeoTreeDirectoryName        = { fg = '${fg}' },
 
                 -- Render Markdown (render like Glow)
                 RenderMarkdownHeadingBg     = { fg = tth(27),    bg = 'NONE',  bold = true },
@@ -510,14 +510,14 @@ require('lazy').setup({
                 RenderMarkdownH1Bg          = { fg = tth(228),   bg = tth(63), bold = true },
                 RenderMarkdownH6Bg          = { fg = tth(27),    bg = 'NONE',  bold = false },
 
-                RenderMarkdownCode          = { fg = '${black}', bg = 'NONE' },
-                RenderMarkdownCodeFallback  = { fg = '${black}', bg = 'NONE' },
+                RenderMarkdownCode          = { fg = '${fg}', bg = 'NONE' },
+                RenderMarkdownCodeFallback  = { fg = '${fg}', bg = 'NONE' },
                 RenderMarkdownCodeInline    = { fg = tth(203),   bg = tth(254) },
 
-                RenderMarkdownBullet        = { fg = '${black}', bg = 'NONE' },
+                RenderMarkdownBullet        = { fg = '${fg}', bg = 'NONE' },
 
-                RenderMarkdownTableHead     = { fg = '${black}', bg = 'NONE',  bold = false },
-                RenderMarkdownTableRow      = { fg = '${black}', bg = 'NONE',  bold = false },
+                RenderMarkdownTableHead     = { fg = '${fg}', bg = 'NONE',  bold = false },
+                RenderMarkdownTableRow      = { fg = '${fg}', bg = 'NONE',  bold = false },
 
                 -- Window Shadows
                 NormalFloat = {
