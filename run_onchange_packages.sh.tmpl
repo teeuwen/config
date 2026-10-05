@@ -213,6 +213,7 @@ main() {
 {{-     $platform = lower .chezmoi.osRelease.idLike }}
 {{-   else }}
 {{-     $platform = lower .chezmoi.osRelease.id }}
+{{-   end }}
 {{- else }}
 {{-   $platform = .chezmoi.os }}
 {{- end }}
