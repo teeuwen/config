@@ -209,7 +209,10 @@ main() {
 {{- if eq .chezmoi.os "darwin" }}
 {{-   $platform = "darwin" }}
 {{- else if eq .chezmoi.os "linux" }}
-{{-   $platform = lower .chezmoi.osRelease.idLike }}
+{{-   if index .chezmoi.osRelease "idLike" }}
+{{-     $platform = lower .chezmoi.osRelease.idLike }}
+{{-   else }}
+{{-     $platform = lower .chezmoi.osRelease.id }}
 {{- else }}
 {{-   $platform = .chezmoi.os }}
 {{- end }}
