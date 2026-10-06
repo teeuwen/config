@@ -10,7 +10,7 @@ export XDG_DATA_DIRS=\
 ${XDG_DATA_DIRS}
 
 if [ -e "${XDG_CONFIG_HOME}/user-dirs.dirs" ]; then
-	source "${XDG_CONFIG_HOME}/user-dirs.dirs"
+	. "${XDG_CONFIG_HOME}/user-dirs.dirs"
 
     while IFS='=' read -r name _; do
         case "${name}" in
@@ -76,5 +76,5 @@ if [ -e "${XDG_CONFIG_HOME}/dircolors" ]; then
 fi
 
 if [ -e "${XDG_CONFIG_HOME}/op/plugins.sh" ]; then
-    source "${XDG_CONFIG_HOME}/op/plugins.sh"
+    . "${XDG_CONFIG_HOME}/op/plugins.sh"
 fi
