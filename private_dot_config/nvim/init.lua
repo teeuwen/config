@@ -370,6 +370,19 @@ require('lazy').setup({
             popup_border_style = '',
             enable_diagnostics = false,
             enable_cursor_hijack = true,
+            default_component_configs = {
+                container = {
+                    enable_character_fade = false,
+                },
+                indent = {
+                    with_markers = false,
+                },
+                icon = {
+                    folder_closed = '',
+                    folder_open = '',
+                    folder_empty = '',
+                },
+            },
             event_handlers = {
                 {
                     event = "neo_tree_buffer_enter",
@@ -727,6 +740,7 @@ local lsp_servers = {
             telemetry = { enable = false }
         }
     },
+    qmlls = {},
     ruff = {},
     rust_analyzer = {},
     sqls = {},
