@@ -5,9 +5,6 @@
 local so = vim.opt
 local wo = vim.wo
 
-so.compatible = false
-
-so.rtp:prepend(vim.env.XDG_CONFIG_HOME .. '/nvim')              -- path: runtime directory
 so.backupdir = { vim.fn.stdpath('state') .. '/backups', '.' }   -- path: backup file directory (~)
 so.directory = { vim.fn.stdpath('state') .. '/swap', '.' }      -- path: swap file directory (.swp)
 so.viminfo:append('n' .. vim.fn.stdpath('state') .. '/history') -- path: history file
@@ -80,6 +77,7 @@ wo.signcolumn    = 'yes:2'          -- lines: combine line number column and lin
 so.termguicolors = true
 --end
 
+so.mouse         = 'n'
 so.mousescroll   = 'ver:1,hor:0'   -- lines: disable horizontal scrolling
 so.scrolloff     = 1               -- lines: set vertical scroll edge
 so.sidescrolloff = 5               -- lines: set horizontal scroll edge
@@ -125,7 +123,6 @@ so.smartcase     = true            -- search: smart ignore case
 so.title         = true            -- terminal: enable title
 -- TODO
 --let &titlestring=$USER . '@' . substitute(hostname(), '\..*$', '', '') . ' - VIM'
-so.ttyfast       = true            -- terminal: fast connection
 so.ttimeoutlen   = 0               -- terminal: no delay after pressing ESC
 so.lazyredraw    = true            -- terminal: faster drawing
 so.backspace     = 'indent,eol,start' -- terminal: fix backspace
@@ -169,12 +166,6 @@ so.sessionoptions = {              -- session: configure what to save
 --let &t_EI='\e[2 q'
 
 
--- Enable mouse support in Normal mode
-vim.api.nvim_create_autocmd({ 'BufEnter' }, {
-  pattern = { '*' },
-  command = 'set mouse=n'
-})
-
 -- Remove How to disable mouse from right click menu
 vim.cmd [[aunmenu PopUp.How-to\ disable\ mouse]]
 vim.cmd [[aunmenu PopUp.-2-]]
@@ -193,7 +184,7 @@ vim.cmd [[aunmenu PopUp.-2-]]
 -- Packages ---------------------------------------------------------------- {{{
 
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
     vim.fn.system({
         'git',
         'clone',
@@ -418,10 +409,6 @@ require('lazy').setup({
     },
     -- }}}
 
-    -- nerdcommenter                (comment shortcuts) {{{
-    { 'preservim/nerdcommenter' },
-    -- }}}
-
     -- nvim-cmp                     (autocomplete) {{{
     {
         'hrsh7th/nvim-cmp',
@@ -555,13 +542,6 @@ require('lazy').setup({
     },
     -- }}}
 
-    -- plenary.nvim                 (plugin framework) {{{
-    {
-        'nvim-lua/plenary.nvim',
-        events = 'VeryLazy',
-    },
-    -- }}}
-
     -- render-markdown.nvim         (DISABLED) {{{
     --{
     --    'meanderingprogrammer/render-markdown.nvim',
@@ -679,10 +659,6 @@ require('lazy').setup({
     },
     -- }}}
 
-    -- vim-bracketed-paste          (automatic :set paste) {{{
-    { 'ConradIrwin/vim-bracketed-paste' },
-    -- }}}
-
     -- vim-helm                     (Helm file type detection) {{{
     {
         'towolf/vim-helm',
@@ -699,6 +675,14 @@ require('lazy').setup({
         end
     },
     -- }}}
+}, {
+    performance = {
+        rtp = {
+            disabled_plugins = {
+                'netrwPlugin', 'gzip', 'tarPlugin', 'zipPlugin', 'tohtml', 'tutor',
+            }
+        }
+    },
 })
 
 -- }}}
@@ -755,30 +739,8 @@ local lsp_servers = {
             customTags = {
                 '!reference sequence'
             },
-            schemas = (function()
-                local fname = vim.api.nvim_buf_get_name(0)
-                local root = vim.fs.root(fname, { '.git' })
-
-                if root == nil then
-                    return {}
-                end
-
-                local path = root .. '/.schemas.lua'
-                if vim.fn.filereadable(path) == 0 then
-                    return {}
-                end
-
-                -- FIXME: unsafe, use a yaml parser instead
-                dofile(path)
-
-                if schemas == nil then
-                    return {}
-                end
-
-                return schemas
-            end)()
         }
-    }
+    },
 }
 
 local lsp_client_keys = {
@@ -811,8 +773,51 @@ for server_name, spec in pairs(lsp_servers) do
     vim.lsp.enable(server_name)
 end
 
+vim.lsp.config('yamlls', {
+    on_init = function(client)
+        local root = client.root_dir
+        if not root then
+            return
+        end
+
+        local path = vim.fs.joinpath(root, '.schemas.json')
+        if not vim.uv.fs_stat(path) then
+            return
+        end
+
+        vim.schedule(function()
+            local content = vim.secure.read(path)
+            if not content then
+                return
+            end
+
+            local ok, schemas = pcall(vim.json.decode, content)
+            if not ok or type(schemas) ~= 'table' then
+                vim.notify('yamlls: invalid ' .. path, vim.log.levels.WARN)
+                return
+            end
+
+            client.settings.yaml = vim.tbl_deep_extend('force', client.settings.yaml or {}, { schemas = schemas })
+            client:notify('workspace/didChangeConfiguration', { settings = client.settings })
+        end)
+    end,
+})
+
 vim.diagnostic.config({
-    signs = true,
+    signs = {
+        text = {
+            [vim.diagnostic.severity.ERROR] = ' ',
+            [vim.diagnostic.severity.WARN]  = ' ⚠',
+            [vim.diagnostic.severity.HINT]  = ' !',
+            [vim.diagnostic.severity.INFO]  = ' ℹ',
+        },
+        numhl = {
+            [vim.diagnostic.severity.ERROR] = 'DiagnosticSignError',
+            [vim.diagnostic.severity.WARN]  = 'DiagnosticSignWarn',
+            [vim.diagnostic.severity.HINT]  = 'DiagnosticSignHint',
+            [vim.diagnostic.severity.INFO]  = 'DiagnosticSignInfo',
+        },
+    },
     underline = true,
     update_in_insert = false,
     virtual_text = false,
@@ -845,20 +850,13 @@ vim.api.nvim_create_autocmd('LspAttach', {
         --vim.keymap.set('n', '<leader>D', vim.lsp.buf.definition_back, opts)
 
         vim.keymap.set('n', '<leader>rd', vim.lsp.buf.declaration, opts)
-        vim.keymap.set('n', '<leader>c', vim.lsp.buf.incoming_calls, opts)
+        vim.keymap.set('n', '<leader>rc', vim.lsp.buf.incoming_calls, opts)
         vim.keymap.set('n', '<leader>f', vim.lsp.buf.format, opts)
         vim.keymap.set('v', '<leader>f', vim.lsp.buf.format, opts)
         vim.keymap.set('n', '<leader>w', require('telescope.builtin').grep_string)
         vim.keymap.set('n', 'S', vim.diagnostic.open_float, opts)
     end,
 })
-
--- Set gutter symbols
-local signs = { Error = ' ', Warn = ' ⚠', Hint = ' !', Info = ' ℹ' }
-for type, icon in pairs(signs) do
-    local hl = 'DiagnosticSign' .. type
-    vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-end
 
 local luasnip = require('luasnip')
 require('luasnip.loaders.from_vscode').lazy_load()
