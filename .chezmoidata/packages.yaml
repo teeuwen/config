@@ -15,6 +15,7 @@ packages:
       - font-jetbrains-mono
       - jq
       - neovim: { debian: snap/nvim --classic }
+      - node  # required for LSPs
       - rename
       - ripgrep
       - rsync
