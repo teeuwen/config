@@ -1,38 +1,71 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Package-data checksum:
 # {{ .packages | toJson | sha256sum }}
 
-set -euo pipefail
+set -eu
+
+if (set -o pipefail) 2>/dev/null; then
+    set -o pipefail
+fi
 
 readonly PLATFORM="{{- if eq .chezmoi.os "darwin" -}}darwin{{- else if eq .chezmoi.os "linux" -}}{{ lower .chezmoi.osRelease.id }}{{- else -}}{{ .chezmoi.os }}{{- end -}}"
 
-declare -a brew_formulae=()
-declare -a brew_casks=()
-declare -a apt_packages=()
-declare -a snap_packages=()
-declare -a docker_packages=()
+readonly NL='
+'
+
+brew_formulae=
+brew_casks=
+apt_packages=
+snap_packages=
 
 log() {
     printf '==> \033[1m%s\033[0m\n' "$*"
 }
 
+# append LIST_NAME VALUE
+# Adds VALUE as a new line to the list variable LIST_NAME, unless it is already present.
 append() {
-    local array_name="$1"
-    local value="$2"
-    local existing
+    eval "_append_list=\${$1}"
 
-    declare -n array_ref="$array_name"
+    case "$NL$_append_list$NL" in
+        *"$NL$2$NL"*)
+            return 0
+            ;;
+    esac
 
-    for existing in "${array_ref[@]}"; do
-        [[ "$existing" == "$value" ]] && return 0
-    done
+    if [ -z "$_append_list" ]; then
+        eval "$1=\$2"
+    else
+        eval "$1=\$_append_list\$NL\$2"
+    fi
+}
 
-    array_ref+=("$value")
+# run_with_list LIST COMMAND [ARGUMENT...]
+# Runs COMMAND with its arguments, followed by each line of LIST as a separate argument.
+run_with_list() {
+    _run_list="$1"
+    shift
+
+    _run_ifs="$IFS"
+    IFS="$NL"
+    set -f
+    # shellcheck disable=SC2086
+    set -- "$@" $_run_list
+    set +f
+    IFS="$_run_ifs"
+
+    "$@"
+}
+
+# is_listed NAME LIST
+# Succeeds if NAME, or NAME without its tap prefix, is a line in LIST.
+is_listed() {
+    printf '%s\n' "$2" | grep -Fqx -e "$1" -e "${1##*/}"
 }
 
 add_package() {
-    local specification="$1"
+    specification="$1"
 
     case "$specification" in
         cask/*)
@@ -41,10 +74,6 @@ add_package() {
 
         snap/*)
             append snap_packages "${specification#snap/}"
-            ;;
-
-        docker/*)
-            append docker_packages "${specification#docker/}"
             ;;
 
         *)
@@ -63,117 +92,96 @@ add_package() {
 
 install_brew_packages() {
     if ! command -v brew >/dev/null 2>&1; then
-        log "Installing Homebrew"
+        log "Installing Homebrew..."
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
-
-    local specification
-    local installed_formulae
-    local installed_casks
-    local -a arguments
 
     installed_formulae="$(brew list --formula --full-name)"
     installed_casks="$(brew list --cask --full-name)"
 
-    if ((${#brew_formulae[@]} > 0)); then
-        for specification in "${brew_formulae[@]}"; do
-            read -r -a arguments <<<"$specification"
+    saved_ifs="$IFS"
+    set -f
 
-            ((${#arguments[@]} > 0)) ||
-                continue
+    IFS="$NL"
+    for specification in $brew_formulae; do
+        IFS="$saved_ifs"
+        # Split the specification into words
+        # shellcheck disable=SC2086
+        set -- $specification
 
-            if grep -Fqx -e "${arguments[0]}" -e "${arguments[0]##*/}" <<<"$installed_formulae"; then
-                continue
-            fi
+        [ "$#" -gt 0 ] ||
+            continue
 
-            log "Installing Homebrew formula: $specification"
-            brew install "${arguments[@]}"
-        done
-    fi
+        if is_listed "$1" "$installed_formulae"; then
+            continue
+        fi
 
-    if ((${#brew_casks[@]} > 0)); then
-        for specification in "${brew_casks[@]}"; do
-            read -r -a arguments <<<"$specification"
+        log "Installing Homebrew formula: $specification..."
+        brew install "$@"
+    done
+    IFS="$saved_ifs"
 
-            ((${#arguments[@]} > 0)) ||
-                continue
+    IFS="$NL"
+    for specification in $brew_casks; do
+        IFS="$saved_ifs"
+        # shellcheck disable=SC2086
+        set -- $specification
 
-            if grep -Fqx -e "${arguments[0]}" -e "${arguments[0]##*/}" <<<"$installed_casks"; then
-                continue
-            fi
+        [ "$#" -gt 0 ] ||
+            continue
 
-            log "Installing Homebrew cask: $specification"
-            brew install --cask "${arguments[@]}"
-        done
-    fi
-}
+        if is_listed "$1" "$installed_casks"; then
+            continue
+        fi
 
-configure_docker_repository() {
-    log "Configuring Docker's APT repository for $PLATFORM"
+        log "Installing Homebrew cask: $specification..."
+        brew install --cask "$@"
+    done
+    IFS="$saved_ifs"
 
-    sudo install -m 0755 -d /etc/apt/keyrings
-
-    sudo curl \
-        --fail \
-        --silent \
-        --show-error \
-        --location \
-        "https://download.docker.com/linux/${PLATFORM}/gpg" \
-        --output /etc/apt/keyrings/docker.asc
-
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-    printf '%s\n' \
-        "Types: deb" \
-        "URIs: https://download.docker.com/linux/${PLATFORM}" \
-        "Suites: $(lsb_release -cs)" \
-        "Components: stable" \
-        "Architectures: $(dpkg --print-architecture)" \
-        "Signed-By: /etc/apt/keyrings/docker.asc" |
-        sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null
+    set +f
 }
 
 install_apt_packages() {
-    configure_docker_repository
-
-    log "Updating APT metadata"
+    log "Updating APT metadata..."
     sudo apt-get update
 
-    if ((${#apt_packages[@]} > 0)); then
-        log "Installing APT packages"
-        sudo apt-get install --yes "${apt_packages[@]}"
-    fi
-
-    if ((${#docker_packages[@]} > 0)); then
-        log "Installing packages from Docker's APT repository"
-        sudo apt-get install --yes "${docker_packages[@]}"
+    if [ -n "$apt_packages" ]; then
+        log "Installing APT packages..."
+        run_with_list "$apt_packages" sudo apt-get install --yes
     fi
 }
 
 install_snap_packages() {
-    ((${#snap_packages[@]} > 0)) || return 0
+    [ -n "$snap_packages" ] || return 0
 
     if ! command -v snap >/dev/null 2>&1; then
-        log "Installing snapd"
+        log "Installing snapd..."
         sudo apt-get install --yes snapd
     fi
 
-    local specification
-    local -a arguments
+    saved_ifs="$IFS"
+    set -f
 
-    for specification in "${snap_packages[@]}"; do
-        read -r -a arguments <<<"$specification"
+    IFS="$NL"
+    for specification in $snap_packages; do
+        IFS="$saved_ifs"
+        # shellcheck disable=SC2086
+        set -- $specification
 
-        ((${#arguments[@]} > 0)) ||
+        [ "$#" -gt 0 ] ||
             continue
 
-        if snap list "${arguments[0]}" >/dev/null 2>&1; then
+        if snap list "$1" >/dev/null 2>&1; then
             continue
         fi
 
-        log "Installing Snap package: $specification"
-        sudo snap install "${arguments[@]}"
+        log "Installing Snap package: $specification..."
+        sudo snap install "$@"
     done
+    IFS="$saved_ifs"
+
+    set +f
 }
 
 main() {
@@ -234,4 +242,4 @@ main() {
 
 main "$@"
 
-# vim: set ft=bash:
+# vim: set ft=sh:
