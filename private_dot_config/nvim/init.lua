@@ -658,23 +658,14 @@ require('lazy').setup({
     {
         'nvim-treesitter/nvim-treesitter',
         branch = 'main',
-        event = { 'BufReadPost', 'BufNewFile' },
-        cmd = { 'TSInstall', 'TSBufEnable', 'TSBufDisable', 'TSModuleInfo' },
+        lazy = false,
         build = ':TSUpdate',
-        opts = {
-            ignore_install = { },
-            auto_install = true,
-            sync_install = false,
-            highlight = {
-                enable = true,
-                additional_vim_regex_highlighting = false,
-            },
-            indent = {
-                enable = false,
-            }
-        },
-        config = function(_, opts)
-            require('nvim-treesitter.config').setup(opts)
+        config = function()
+            vim.api.nvim_create_autocmd('FileType', {
+                callback = function(args)
+                    pcall(vim.treesitter.start, args.buf)
+                end,
+            })
         end,
     },
     -- }}}
