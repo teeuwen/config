@@ -687,6 +687,31 @@ require('lazy').setup({
 
 -- }}}
 
+-- Local Config ------------------------------------------------------------ {{{
+
+local conf_d_path = vim.fn.stdpath("config") .. "/conf.d"
+local handle = vim.uv.fs_scandir(conf_d_path)
+
+if handle then
+    while true do
+        local name, type = vim.uv.fs_scandir_next(handle)
+        if not name then break end
+
+        if type == "file" and name:match("%.lua$") then
+            local file_path = conf_d_path .. "/" .. name
+
+            local success, err = pcall(vim.cmd, "source " .. file_path)
+            if not success then
+                vim.notify("Error loading " .. name .. ": " .. tostring(err), vim.log.levels.ERROR)
+            end
+        end
+    end
+else
+    vim.notify("conf.d directory not found at " .. conf_d_path, vim.log.levels.WARN)
+end
+
+-- }}}
+
 -- LSP --------------------------------------------------------------------- {{{
 
 local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
@@ -751,9 +776,13 @@ local lsp_client_keys = {
     root_dir = true,
 }
 
+-- init.lua, mason-lspconfig setup
+local skip = vim.g.mason_skip or {}
 require('mason-lspconfig').setup {
-    ensure_installed = vim.tbl_keys(lsp_servers),
-    automatic_enable = false
+    ensure_installed = vim.tbl_filter(function(name)
+        return not vim.tbl_contains(skip, name)
+    end, vim.tbl_keys(lsp_servers)),
+    automatic_enable = false,
 }
 
 for server_name, spec in pairs(lsp_servers) do
@@ -1073,30 +1102,5 @@ nnoremap('<leader>k', ':setl list!<CR>')
 
 -- Leader + [s]: Toggle spelling check
 nnoremap('<leader>s', ':setl invspell<CR>')
-
--- }}}
-
--- Local Config ------------------------------------------------------------ {{{
-
-local conf_d_path = vim.fn.stdpath("config") .. "/conf.d"
-local handle = vim.uv.fs_scandir(conf_d_path)
-
-if handle then
-    while true do
-        local name, type = vim.uv.fs_scandir_next(handle)
-        if not name then break end
-
-        if type == "file" and name:match("%.lua$") then
-            local file_path = conf_d_path .. "/" .. name
-
-            local success, err = pcall(vim.cmd, "source " .. file_path)
-            if not success then
-                vim.notify("Error loading " .. name .. ": " .. tostring(err), vim.log.levels.ERROR)
-            end
-        end
-    end
-else
-    vim.notify("conf.d directory not found at " .. conf_d_path, vim.log.levels.WARN)
-end
 
 -- }}}
