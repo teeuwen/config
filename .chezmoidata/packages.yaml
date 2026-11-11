@@ -10,12 +10,14 @@ packages:
       - diffutils
       - gawk
       - git
+      - go: { debian: snap/go --classic }  # required for gopls and sqls LSPs
       - grep
       - htop
       - font-jetbrains-mono
       - jq
+      - kitty: { darwin: cask/kitty }
       - neovim: { debian: snap/nvim --classic }
-      - node  # required for LSPs
+      - node: { debian: snap/node --classic }  # required for LSPs
       - rename
       - ripgrep
       - rsync
@@ -60,6 +62,5 @@ packages:
   #    - exiftool
   #    - ffmpeg
   #    - imagemagick
-  #    - kitty: { darwin: cask/kitty }
   #    - mpv
   #    - yt-dlp: { darwin: yt-dlp --head }
