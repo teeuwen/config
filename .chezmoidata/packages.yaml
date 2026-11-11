@@ -26,7 +26,6 @@ packages:
       - yq
     darwin:
       - asmvik/formulae/skhd
-      - cask/1password
       - cask/displaylink
       - cask/linearmouse
       - watch
