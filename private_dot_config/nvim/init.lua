@@ -439,7 +439,16 @@ require('lazy').setup({
     {
         'catgoose/nvim-colorizer.lua',
         event = 'BufReadPre',
-        opts = {}
+        opts = {
+            options = {
+                parsers = {
+                    hex = { default = true },
+                },
+            },
+            buftypes = {
+                terminal = { parsers = { hex = { default = true } } },
+            },
+        },
     },
     -- }}}
 
@@ -553,54 +562,54 @@ require('lazy').setup({
     },
     -- }}}
 
-    -- render-markdown.nvim {{{
-    {
-        'meanderingprogrammer/render-markdown.nvim',
-        dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
-        opts = {
-            heading = {
-                sign = false,
-                icons = {
-                    ' ',
-                    '## ',
-                    '### ',
-                    '#### ',
-                    '##### ',
-                    '###### ',
-                },
-                position = 'inline',
-                width = 'block',
-                right_pad = 1,
-                backgrounds = {
-                    'RenderMarkdownH1Bg',
-                    'RenderMarkdownHeadingBg',
-                    'RenderMarkdownHeadingBg',
-                    'RenderMarkdownHeadingBg',
-                    'RenderMarkdownHeadingBg',
-                    'RenderMarkdownH6Bg',
-                },
-                foregrounds = {
-                    'RenderMarkdownHeading',
-                    'RenderMarkdownHeading',
-                    'RenderMarkdownHeading',
-                    'RenderMarkdownHeading',
-                    'RenderMarkdownHeading',
-                    'RenderMarkdownHeading',
-                },
-            },
-            code = {
-                language = false,
-                left_margin = 2,
-                inline_pad = 1,
-            },
-            bullet = {
-                icons = { '•', '◦', '⬥', '⬦' },
-            },
-            pipe_table = {
-                border_enabled = false,
-            },
-        },
-    },
+    -- render-markdown.nvim         (DISABLED) {{{
+    --{
+    --    'meanderingprogrammer/render-markdown.nvim',
+    --    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    --    opts = {
+    --        heading = {
+    --            sign = false,
+    --            icons = {
+    --                ' ',
+    --                '## ',
+    --                '### ',
+    --                '#### ',
+    --                '##### ',
+    --                '###### ',
+    --            },
+    --            position = 'inline',
+    --            width = 'block',
+    --            right_pad = 1,
+    --            backgrounds = {
+    --                'RenderMarkdownH1Bg',
+    --                'RenderMarkdownHeadingBg',
+    --                'RenderMarkdownHeadingBg',
+    --                'RenderMarkdownHeadingBg',
+    --                'RenderMarkdownHeadingBg',
+    --                'RenderMarkdownH6Bg',
+    --            },
+    --            foregrounds = {
+    --                'RenderMarkdownHeading',
+    --                'RenderMarkdownHeading',
+    --                'RenderMarkdownHeading',
+    --                'RenderMarkdownHeading',
+    --                'RenderMarkdownHeading',
+    --                'RenderMarkdownHeading',
+    --            },
+    --        },
+    --        code = {
+    --            language = false,
+    --            left_margin = 2,
+    --            inline_pad = 1,
+    --        },
+    --        bullet = {
+    --            icons = { '•', '◦', '⬥', '⬦' },
+    --        },
+    --        pipe_table = {
+    --            border_enabled = false,
+    --        },
+    --    },
+    --},
     -- }}}
 
     -- telescope.nvim               (fuzzy finder) {{{
