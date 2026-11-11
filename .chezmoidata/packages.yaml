@@ -9,8 +9,10 @@ packages:
       - curl
       - diffutils
       - gawk
+      - git
       - grep
       - htop
+      - font-jetbrains-mono
       - jq
       - neovim: { debian: snap/nvim --classic }
       - rename
@@ -23,45 +25,41 @@ packages:
       - wget
       - yq
     darwin:
+      - asmvik/formulae/skhd
+      - cask/1password
+      - cask/displaylink
+      - cask/linearmouse
       - watch
     debian:
       - procps
 
-  dev:
-    common:
-      - autoconf
-      - automake
-      - bison
-      - cmake: { debian: snap/cmake --classic }
-      - cpio
-      - docker-buildx: { debian: docker/docker-buildx-plugin }
-      - docker-compose: { debian: docker/docker-compose-plugin }
-      - docker: { debian: docker/docker-ce }
-      - gcc
-      - git
-      - go: { debian: snap/go --classic }
-      - kubernetes-cli: { debian: snap/kubectl --classic }
-      - kustomize
-      - make
-      - ninja: { debian: ninja-build }
-      - node: { debian: snap/node --classic }
-      - rustup
-      - shellcheck:
-    darwin:
-      - cask/orbstack
-      - uv
-    debian:
-      - docker-ce-cli
+  #dev:
+  #  common:
+  #    - autoconf
+  #    - automake
+  #    - bison
+  #    - cmake: { debian: snap/cmake --classic }
+  #    - cpio
+  #    - gcc
+  #    - go: { debian: snap/go --classic }
+  #    - kubernetes-cli: { debian: snap/kubectl --classic }
+  #    - kustomize
+  #    - make
+  #    - ninja: { debian: ninja-build }
+  #    - node: { debian: snap/node --classic }
+  #  darwin:
+  #    - cask/orbstack
+  #  debian:
+  #    - docker-ce-cli
+  #    - docker/docker-buildx-plugin
+  #    - docker/docker-ce
+  #    - docker/docker-compose-plugin
 
-  gui:
-    common:
-      - exiftool
-      - ffmpeg
-      - imagemagick
-      - kitty: { darwin: cask/kitty }
-      - mpv
-      - yt-dlp: { darwin: yt-dlp --head }
-    darwin:
-      - asmvik/formulae/skhd
-      - cask/1password
-      - cask/rectangle
+  #gui:
+  #  common:
+  #    - exiftool
+  #    - ffmpeg
+  #    - imagemagick
+  #    - kitty: { darwin: cask/kitty }
+  #    - mpv
+  #    - yt-dlp: { darwin: yt-dlp --head }
