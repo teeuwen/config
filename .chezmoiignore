@@ -1,5 +1,6 @@
 {{ if ne .chezmoi.os "darwin" -}}
 .config/skhd/
+.config/user-dirs.dirs
 Library/
 {{- else if ne .chezmoi.os "linux" -}}
 .config/systemd/
