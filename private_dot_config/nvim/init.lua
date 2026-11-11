@@ -719,7 +719,6 @@ local lsp_servers = {
     ansiblels = {},
     bashls = {},
     clangd = {},
-    cmake = {},
     cssls = {},
     docker_language_server = {},
     gopls = {},
@@ -750,6 +749,7 @@ local lsp_servers = {
             telemetry = { enable = false }
         }
     },
+    neocmake = {},
     qmlls = {},
     ruff = {},
     rust_analyzer = {},

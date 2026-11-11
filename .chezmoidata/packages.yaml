@@ -36,6 +36,7 @@ packages:
       - watch
     debian:
       - procps
+      - python3-venv  # required for ty LSP
 
   #dev:
   #  common:
