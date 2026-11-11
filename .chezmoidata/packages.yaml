@@ -13,7 +13,7 @@ packages:
       - go: { debian: snap/go --classic }  # required for gopls and sqls LSPs
       - grep
       - htop
-      - font-jetbrains-mono
+      - font-jetbrains-mono: { debian: fonts-jetbrains-mono }
       - jq
       - kitty: { darwin: cask/kitty }
       - neovim: { debian: snap/nvim --classic }
