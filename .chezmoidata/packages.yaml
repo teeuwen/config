@@ -21,6 +21,8 @@ packages:
       - rename
       - ripgrep
       - rsync
+      - shellcheck
+      - shfmt
       - tar: { darwin: gnu-tar }
       - tree
       - usb.ids

@@ -692,6 +692,7 @@ require('lazy').setup({
 local lsp_capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 local lsp_servers = {
     ansiblels = {},
+    bashls = {},
     clangd = {},
     cmake = {},
     cssls = {},
