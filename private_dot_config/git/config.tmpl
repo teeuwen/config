@@ -8,7 +8,7 @@
 [commit]
 	gpgsign = true
 [core]
-	excludesfile = ~/.config/git/ignore
+	excludesfile = {{ .chezmoi.homeDir }}/.config/git/ignore
 {{ if eq .chezmoi.os "darwin" -}}
 [credential]
 	helper = osxkeychain
@@ -31,7 +31,7 @@
 {{ if eq .chezmoi.os "darwin" -}}
     program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
 {{- end }}
-	allowedSignersFile = /Users/bastiaan/.ssh/allowed_signers
+	allowedSignersFile = {{ .chezmoi.homeDir }}/.ssh/allowed_signers
 [init]
 	defaultBranch = master
 [pager]
