@@ -976,20 +976,30 @@ cmp.setup {
 
 -- ThemeObserver ----------------------------------------------------------- {{{
 
-function UpdateColorscheme()
-    local colorscheme = vim.fn.readfile(vim.fn.stdpath('state') .. '/theme')[1]
-    local background = vim.fn.readfile(vim.fn.stdpath('state') .. '/theme')[2]
+local last_theme
 
-    vim.cmd('colorscheme ' .. colorscheme)
-    so.background = background
+function UpdateColorscheme()
+    local lines = vim.fn.readfile(vim.fn.stdpath('state') .. '/theme')
+
+    local theme = lines[1] .. ':' .. lines[2]
+    if theme == last_theme then
+        return
+    end
+    last_theme = theme
+
+    vim.cmd.colorscheme(lines[1])
+    so.background = lines[2]
+
+    if package.loaded['colorizer'] then
+        require('colorizer').clear_highlight_cache()
+    end
 
     vim.cmd('redraw!')
 end
 
 -- Update color scheme when Neovim is (re)started or when SIGUSR1 is received
-vim.api.nvim_create_autocmd({ 'FileType', 'Signal', 'VimResume' }, {
-    pattern = { '*' },
-    callback = UpdateColorscheme
+vim.api.nvim_create_autocmd({ 'VimEnter', 'Signal', 'VimResume' }, {
+  callback = UpdateColorscheme,
 })
 
 -- Highlight trailing whitespaces in normal mode
